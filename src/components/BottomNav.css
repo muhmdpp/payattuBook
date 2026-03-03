@@ -30,7 +30,11 @@
     color: var(--text-muted);
     width: 50px;
     height: 50px;
-    transition: color 0.2s ease;
+    transition: color 0.1s ease-out, opacity 0.1s ease-out;
+}
+
+.nav-item:active {
+    opacity: 0.5;
 }
 
 .nav-item.active {
@@ -57,11 +61,13 @@
     justify-content: center;
     align-items: center;
     box-shadow: 0 4px 10px rgba(139, 92, 246, 0.4);
-    transition: transform 0.2s ease;
+    transition: transform 0.1s ease-out, background-color 0.2s ease;
 }
 
 .fab-button:active {
-    transform: scale(0.95);
+    transform: scale(0.92);
+    background-color: #6D28D9;
+    /* Darker purple on tap */
 }
 
 /* Background cutout effect using pseudo-element trick */
