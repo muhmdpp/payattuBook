@@ -1,3 +1,5 @@
+"use client";
+
 import Link from 'next/link';
 import { Bell, IndianRupee, CalendarPlus, UserPlus, ArrowRightLeft, CalendarDays, ArrowLeftRight } from 'lucide-react';
 import BottomNav from '@/components/BottomNav';
