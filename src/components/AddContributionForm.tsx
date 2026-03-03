@@ -27,8 +27,8 @@ export default function AddContributionForm({ onAdded }: { onAdded: () => void }
             setReceiverId("");
             setAmount("");
             onAdded(); // Refresh parent lists
-        } catch (err: any) {
-            setError(err.message || "Failed to add contribution");
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : "Failed to add contribution");
         } finally {
             setLoading(false);
         }

@@ -20,7 +20,7 @@ export default function Home() {
                     <h1 className="logo-text">
                         <strong>Payattu</strong>Book
                     </h1>
-                    <h6 className="text-xs text-gray-600 mt-1">1.46.0</h6>
+                    <h6 className="text-xs text-gray-500 mt-1 truncate max-w-[150px]">1.50</h6>
                     <button className="notification-btn" aria-label="Notifications">
                         <Bell size={24} />
                         <span className="notification-badge">13</span>

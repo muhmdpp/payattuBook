@@ -40,8 +40,8 @@ export default function ReturnForm({
             );
 
             onComplete(); // success
-        } catch (err: any) {
-            setError(err.message || "Failed to process return");
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : "Failed to process return");
         } finally {
             setLoading(false);
         }
