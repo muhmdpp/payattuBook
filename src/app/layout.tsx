@@ -4,6 +4,11 @@ import type { Metadata, Viewport } from 'next';
 export const metadata: Metadata = {
     title: 'Payattu Book',
     description: 'Mobile-first application for managing Payattu',
+    appleWebApp: {
+        title: 'Payattu Book',
+        capable: true,
+        statusBarStyle: 'black-translucent',
+    },
 };
 
 export const viewport: Viewport = {

@@ -76,6 +76,7 @@ button {
     width: 100%;
     max-width: var(--app-max-width);
     min-height: 100vh;
+    min-height: 100dvh;
     background-color: var(--surface);
     position: relative;
     /* Prevent horizontal scrolling */
@@ -86,6 +87,12 @@ button {
     box-shadow: var(--shadow-lg);
     display: flex;
     flex-direction: column;
+}
+
+@media (max-width: 480px) {
+    .mobile-wrapper {
+        max-width: 100%;
+    }
 }
 
 .mobile-wrapper::-webkit-scrollbar {
