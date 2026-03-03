@@ -1,0 +1,213 @@
+.home-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+    background-color: var(--surface);
+}
+
+.home-header-section {
+    background: var(--primary-gradient);
+    padding: 1.5rem 1.25rem 3.5rem 1.25rem;
+    color: white;
+}
+
+.home-top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.avatar-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    background-color: #EAB308;
+    /* Yellow Avatar base */
+    border: 2px solid white;
+}
+
+.avatar-circle.large {
+    width: 50px;
+    height: 50px;
+    flex-shrink: 0;
+}
+
+.logo-text {
+    font-size: 1.25rem;
+    font-weight: 400;
+}
+
+.notification-btn {
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #EF4444;
+    /* Red */
+    color: white;
+    font-size: 0.65rem;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 10px;
+    border: 2px solid var(--primary);
+}
+
+.action-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+    text-align: center;
+}
+
+.action-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.action-icon-wrapper {
+    width: 56px;
+    height: 56px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: var(--radius-md);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* For the diamond rupee icon wrapper effect */
+.diamond-frame {
+    transform: rotate(45deg);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 4px;
+}
+
+.diamond-frame svg {
+    transform: rotate(-45deg);
+}
+
+.action-label {
+    font-size: 0.65rem;
+    font-weight: 500;
+    opacity: 0.9;
+}
+
+.home-main-content {
+    flex: 1;
+    background-color: var(--surface);
+    border-top-left-radius: var(--radius-lg);
+    border-top-right-radius: var(--radius-lg);
+    margin-top: -1.5rem;
+    /* overlap with purple section */
+    padding: 2rem 1.25rem;
+    z-index: 10;
+    position: relative;
+}
+
+.list-section {
+    margin-bottom: 2rem;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.section-header h2 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--primary);
+    /* Deep purple headings */
+}
+
+.icon-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-full);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.red-circle {
+    background-color: #EF4444;
+}
+
+.green-circle {
+    background-color: #22C55E;
+}
+
+.horizontal-scroll {
+    display: flex;
+    overflow-x: auto;
+    gap: 1rem;
+    padding-bottom: 0.5rem;
+    /* hide scrollbar */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.horizontal-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.event-card {
+    min-width: 240px;
+    background-color: white;
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+}
+
+.event-details h3 {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.event-details p {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.text-btn {
+    color: #2563EB;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-top: 0.5rem;
+    padding: 0;
+}
+
+.skeleton-card {
+    min-width: 100px;
+    height: 140px;
+    background-color: #f9fafb;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+}

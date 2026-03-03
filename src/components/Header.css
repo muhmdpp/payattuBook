@@ -1,0 +1,31 @@
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 1.25rem;
+    background-color: transparent;
+    width: 100%;
+}
+
+.header-left,
+.header-right {
+    width: 40px;
+    /* Keep center text balanced */
+    display: flex;
+    align-items: center;
+}
+
+.back-button {
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-main);
+    text-align: center;
+    flex: 1;
+}

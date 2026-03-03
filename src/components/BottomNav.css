@@ -1,0 +1,78 @@
+.bottom-nav-container {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    max-width: var(--app-max-width);
+    height: 80px;
+    z-index: 50;
+}
+
+.bottom-nav {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background-color: var(--surface);
+    height: 60px;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    box-shadow: 0 -4px 6px -1px rgb(0 0 0 / 0.05);
+    /* Soft top shadow */
+    border-top-left-radius: var(--radius-lg);
+    border-top-right-radius: var(--radius-lg);
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    width: 50px;
+    height: 50px;
+    transition: color 0.2s ease;
+}
+
+.nav-item.active {
+    color: var(--accent);
+}
+
+.nav-item-fab-wrapper {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+}
+
+.fab-button {
+    position: absolute;
+    bottom: 10px;
+    /* Overlaps the bottom nav */
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-full);
+    background-color: var(--accent);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 10px rgba(139, 92, 246, 0.4);
+    transition: transform 0.2s ease;
+}
+
+.fab-button:active {
+    transform: scale(0.95);
+}
+
+/* Background cutout effect using pseudo-element trick */
+.nav-item-fab-wrapper::before {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    width: 80px;
+    height: 80px;
+    background-color: var(--background);
+    /* Match the app background to look like a cutout */
+    border-radius: var(--radius-full);
+    z-index: -1;
+}

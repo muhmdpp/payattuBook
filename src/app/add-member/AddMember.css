@@ -1,0 +1,115 @@
+/* Most styles are shared via AddEvent.css for the form, importing or duplicating for modularity */
+.form-content {
+    flex: 1;
+    padding: 1rem 1.25rem;
+    overflow-y: auto;
+}
+
+.form-card {
+    background-color: white;
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 2rem;
+}
+
+.card-header-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.card-header-label h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.photo-upload-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    gap: 0.5rem;
+}
+
+.photo-circle {
+    width: 60px;
+    height: 60px;
+    background-color: #F3F4F6;
+    border-radius: var(--radius-full);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px dashed var(--border);
+}
+
+.photo-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.optional-text {
+    font-size: 0.65rem;
+}
+
+.inputs-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.input-field {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    outline: none;
+    background-color: #F9FAFB;
+}
+
+.input-field:focus {
+    border-color: var(--primary);
+}
+
+.textarea-field {
+    resize: vertical;
+    font-family: inherit;
+}
+
+.btn-primary {
+    width: 100%;
+    background-color: var(--success);
+    color: white;
+    padding: 1rem;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 1rem;
+    text-align: center;
+}
+
+/* Reused from Add Event */
+.recently-added-section {
+    margin-top: 1rem;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 3rem 0;
+    color: #9CA3AF;
+    gap: 1rem;
+}
+
+.empty-state p {
+    font-size: 0.875rem;
+}

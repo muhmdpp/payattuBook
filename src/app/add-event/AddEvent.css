@@ -1,0 +1,142 @@
+.form-content {
+    flex: 1;
+    padding: 1rem 1.25rem;
+    overflow-y: auto;
+}
+
+.form-card {
+    background-color: white;
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 2rem;
+}
+
+.card-header-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.card-header-label h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.input-group {
+    position: relative;
+    margin-bottom: 0.5rem;
+}
+
+.input-field {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    outline: none;
+    background-color: #F9FAFB;
+}
+
+.input-field:focus {
+    border-color: var(--primary);
+}
+
+.input-field::placeholder {
+    color: #9CA3AF;
+}
+
+.search-group .input-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.helper-text-right {
+    text-align: left;
+    font-size: 0.65rem;
+    margin-bottom: 1rem;
+    color: var(--text-muted);
+}
+
+.text-link {
+    color: #3B82F6;
+    font-weight: 600;
+}
+
+.row-inputs {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.half-width {
+    flex: 1;
+}
+
+.btn-primary {
+    width: 100%;
+    background-color: var(--success);
+    color: white;
+    padding: 1rem;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 1rem;
+    text-align: center;
+}
+
+/* Recently Added List */
+.recently-added-section {
+    margin-top: 1rem;
+}
+
+.recent-card {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background-color: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.recent-card .recent-details {
+    flex: 1;
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
+
+.recent-card .recent-details h3 {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.recent-card .recent-details p {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+.time-ago {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 3rem 0;
+    color: #9CA3AF;
+    gap: 1rem;
+}
+
+.empty-state p {
+    font-size: 0.875rem;
+}
