@@ -3,7 +3,8 @@
     bottom: 0;
     width: 100%;
     max-width: var(--app-max-width);
-    height: 80px;
+    height: 100px;
+    /* Increased to account for more padding */
     z-index: 50;
 }
 
@@ -12,7 +13,10 @@
     justify-content: space-around;
     align-items: center;
     background-color: var(--surface);
-    height: 60px;
+    height: 80px;
+    /* Increased height for more padding */
+    padding-bottom: 25px;
+    /* Added more padding at the bottom */
     position: absolute;
     bottom: 0;
     width: 100%;
@@ -51,7 +55,8 @@
 
 .fab-button {
     position: absolute;
-    bottom: 10px;
+    bottom: 35px;
+    /* Increased to keep proportional with the new padding */
     /* Overlaps the bottom nav */
     width: 64px;
     height: 64px;

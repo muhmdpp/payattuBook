@@ -36,17 +36,25 @@
     -webkit-tap-highlight-color: transparent;
 }
 
+html,
+body {
+    /* Prevent pull-to-refresh and rubber-band bounce on mobile iOS */
+    overscroll-behavior-y: none;
+    overscroll-behavior: none;
+    background-color: var(--background);
+}
+
 body {
     font-family: 'Inter', sans-serif;
-    background-color: var(--background);
     color: var(--text-main);
     /* The body centers the app in desktop */
     display: flex;
     justify-content: center;
     align-items: flex-start;
     min-height: 100vh;
-    /* Prevent pull-to-refresh and bounce on mobile */
-    overscroll-behavior-y: none;
+    min-height: 100dvh;
+    overflow-y: hidden;
+    /* Stop body from natively scrolling to prevent top-drag */
 }
 
 a {
@@ -81,6 +89,8 @@ button {
     position: relative;
     /* Prevent horizontal scrolling */
     overflow-x: hidden;
+    /* Allow scrolling inside the wrapper only */
+    overflow-y: auto;
     /* Hide vertical scrollbar out of the frame */
     scrollbar-width: none;
     -ms-overflow-style: none;
