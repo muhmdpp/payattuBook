@@ -1,28 +1,53 @@
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
+import { createBrowserClient } from '@supabase/ssr';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import BottomNav from '@/components/BottomNav';
-import { User, Bell, Bug, MessageSquare, Info, ChevronRight, Camera, LogOut, Check } from 'lucide-react';
+import { User, Bell, Bug, MessageSquare, Info, ChevronRight, LogOut, Check } from 'lucide-react';
 import './Settings.css';
 
 const USERNAME_KEY = 'payattu_username';
 const NOTIF_KEY = 'payattu_notifications';
 
 export default function SettingsPage() {
+    const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
     const [userName, setUserName] = useState('');
+    const [avatarUrl, setAvatarUrl] = useState('');
+    const [authEmail, setAuthEmail] = useState('');
     const [notificationsEnabled, setNotif] = useState(true);
     const [nameSaved, setNameSaved] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
 
-    // Load persisted values on mount
+    // Load auth session + persisted values on mount
     useEffect(() => {
-        const savedName = localStorage.getItem(USERNAME_KEY);
         const savedNotif = localStorage.getItem(NOTIF_KEY);
-        if (savedName) setUserName(savedName);
         if (savedNotif) setNotif(savedNotif === 'true');
-    }, []);
+
+        // Load from Supabase auth
+        supabase.auth.getUser().then(({ data: { user } }) => {
+            if (user) {
+                const meta = user.user_metadata;
+                setAvatarUrl(meta?.avatar_url || meta?.picture || '');
+                setAuthEmail(user.email || '');
+                // Use saved name override, or fall back to Google display name
+                const savedName = localStorage.getItem(USERNAME_KEY);
+                const googleName = meta?.full_name || meta?.name || '';
+                setUserName(savedName || googleName);
+                // Also save Google name to localStorage for PDF export if not already set
+                if (!savedName && googleName) {
+                    localStorage.setItem(USERNAME_KEY, googleName);
+                }
+            } else {
+                const savedName = localStorage.getItem(USERNAME_KEY);
+                if (savedName) setUserName(savedName);
+            }
+        });
+    }, []);  // eslint-disable-line react-hooks/exhaustive-deps
 
     // Save name to localStorage
     const handleSaveName = () => {
@@ -57,10 +82,15 @@ export default function SettingsPage() {
                 {/* Profile Card */}
                 <div className="settings-profile-card">
                     <div className="profile-avatar-wrapper">
-                        <div className="avatar-circle" style={{ width: 64, height: 64 }} />
-                        <button className="camera-btn" aria-label="Change photo">
-                            <Camera size={14} color="white" />
-                        </button>
+                        {avatarUrl ? (
+                            <img
+                                src={avatarUrl}
+                                alt="Profile"
+                                style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover' }}
+                            />
+                        ) : (
+                            <div className="avatar-circle" style={{ width: 64, height: 64 }} />
+                        )}
                     </div>
                     <div className="profile-info" style={{ flex: 1 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -77,7 +107,7 @@ export default function SettingsPage() {
                             {nameSaved && <Check size={16} color="#22C55E" />}
                         </div>
                         <p className="profile-subtitle">
-                            {userName.trim() ? 'Tap name to edit · Enter to save' : 'Your name appears on PDF exports'}
+                            {authEmail || (userName.trim() ? 'Tap name to edit · Enter to save' : 'Your name appears on PDF exports')}
                         </p>
                     </div>
                 </div>
@@ -173,9 +203,10 @@ export default function SettingsPage() {
 
                     {/* Logout */}
                     <div style={{ padding: '1rem', marginTop: '1rem' }}>
-                        <button className="logout-btn" onClick={() => {
+                        <button className="logout-btn" onClick={async () => {
                             localStorage.clear();
-                            window.location.href = '/';
+                            await supabase.auth.signOut();
+                            window.location.href = '/login';
                         }}>
                             <LogOut size={18} />
                             Log Out

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { createBrowserClient } from '@supabase/ssr';
 import { Bell, IndianRupee, CalendarPlus, History, CalendarDays, ArrowLeftRight, CalendarCheck, ArrowDownToLine } from 'lucide-react';
 import BottomNav from '@/components/BottomNav';
 import { getUpcomingEvents, getAllTransactions, getPendingAmountForMember, getPaymentForEvent, Event, Transaction, ME } from '@/services/payattuService';
@@ -29,6 +30,11 @@ type EnrichedEvent = Event & { due: number; alreadyPaid: boolean; paidAmount?: n
 export default function Home() {
     const [upcomingEvents, setUpcomingEvents] = useState<EnrichedEvent[]>([]);
     const [recentTxs, setRecentTxs] = useState<Transaction[]>([]);
+    const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+    const [avatarUrl, setAvatarUrl] = useState('');
     const [loading, setLoading] = useState(true);
     const now = Date.now();
 
@@ -59,15 +65,25 @@ export default function Home() {
 
     useEffect(() => { load(); }, [load]);
 
+    // Load profile picture
+    useEffect(() => {
+        supabase.auth.getUser().then(({ data: { user } }) => {
+            const meta = user?.user_metadata;
+            setAvatarUrl(meta?.avatar_url || meta?.picture || '');
+        });
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
     return (
         <div className="home-container">
             <div className="home-header-section">
                 <header className="home-top-bar">
-                    <div className="avatar-placeholder">
-                        <div className="avatar-circle">
-                            <span className="visually-hidden">User profile</span>
-                        </div>
-                    </div>
+                    <Link href="/settings" className="avatar-placeholder" aria-label="Go to settings">
+                        {avatarUrl ? (
+                            <img src={avatarUrl} alt="Profile" style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', display: 'block' }} />
+                        ) : (
+                            <div className="avatar-circle" />
+                        )}
+                    </Link>
                     <div>
                         <h1 className="logo-text"><strong>Payattu</strong>Book</h1>
                     </div>
