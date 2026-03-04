@@ -83,8 +83,8 @@ button {
 .mobile-wrapper {
     width: 100%;
     max-width: var(--app-max-width);
-    min-height: 100vh;
-    min-height: 100dvh;
+    height: 100vh;
+    height: 100dvh;
     background-color: var(--surface);
     position: relative;
     /* Prevent horizontal scrolling */
@@ -125,4 +125,362 @@ button {
     overflow: hidden;
     clip: rect(0, 0, 0, 0);
     border: 0;
+}
+
+/* ── Shared across pages ───────────────────── */
+
+.page-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 100vh;
+    background-color: var(--surface);
+    position: relative;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.section-header h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.icon-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.red-circle {
+    background-color: #EF4444;
+}
+
+.green-circle {
+    background-color: #22C55E;
+}
+
+/* Avatar sizes */
+.avatar-circle {
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #C4B5FD, #8B5CF6);
+    border-radius: var(--radius-full);
+    flex-shrink: 0;
+}
+
+.avatar-circle.large {
+    width: 54px;
+    height: 54px;
+}
+
+.avatar-circle.small {
+    width: 36px;
+    height: 36px;
+}
+
+.avatar-circle.tiny {
+    width: 26px;
+    height: 26px;
+}
+
+/* Spinner animation */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spin {
+    animation: spin 0.8s linear infinite;
+}
+
+/* ── Skeleton loading ──────────────────────── */
+@keyframes shimmer {
+    0% {
+        background-position: -400px 0;
+    }
+
+    100% {
+        background-position: 400px 0;
+    }
+}
+
+.skeleton {
+    background: linear-gradient(90deg, #F3F4F6 25%, #E5E7EB 50%, #F3F4F6 75%);
+    background-size: 800px 100%;
+    animation: shimmer 1.4s infinite linear;
+    border-radius: 0.5rem;
+}
+
+.skeleton-text {
+    height: 0.8rem;
+    margin-bottom: 0.4rem;
+}
+
+.skeleton-text.wide {
+    width: 70%;
+}
+
+.skeleton-text.short {
+    width: 40%;
+}
+
+.skeleton-text.full {
+    width: 100%;
+}
+
+.skeleton-circle {
+    border-radius: var(--radius-full);
+    flex-shrink: 0;
+}
+
+.skeleton-card-block {
+    background: white;
+    border-radius: 0.75rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.skeleton-event-card {
+    min-width: 240px;
+    background: white;
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    border: 1px solid var(--border);
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+
+/* Error text */
+.error-text {
+    font-size: 0.78rem;
+    color: #EF4444;
+    margin-bottom: 0.5rem;
+}
+
+/* Section title */
+.section-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* Due / pending tags on event cards */
+.due-tag {
+    font-size: 0.7rem !important;
+    font-weight: 600;
+    color: #B45309 !important;
+    background-color: #FEF3C7;
+    padding: 2px 7px;
+    border-radius: 999px;
+    display: inline-block;
+    margin-top: 3px;
+}
+
+.pending-tag {
+    font-size: 0.7rem !important;
+    font-weight: 600;
+    color: #B45309 !important;
+    background-color: #FEF3C7;
+    padding: 2px 7px;
+    border-radius: 999px;
+    display: inline-block;
+    margin-top: 3px;
+}
+
+/* Search dropdown */
+.search-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-md);
+    z-index: 100;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.6rem 1rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: var(--text-main);
+    transition: background 0.1s;
+}
+
+.dropdown-item:hover {
+    background-color: #F9FAFB;
+}
+
+/* Member list in Add Member */
+.member-list-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.member-list-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    background: white;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+}
+
+.member-info h3 {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.member-info p {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+}
+
+.name-ml {
+    font-size: 0.78rem !important;
+    color: var(--text-muted);
+}
+
+/* Mark Payment extras */
+.payment-card--done {
+    opacity: 0.7;
+}
+
+.mark-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    background-color: var(--accent);
+    color: white;
+    border-radius: var(--radius-full);
+    font-size: 0.78rem;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.inline-amount {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.amount-input-row {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: #F9FAFB;
+}
+
+.rupee-symbol {
+    padding: 6px 8px;
+    font-weight: 600;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.amount-input {
+    width: 80px;
+    border: none;
+    outline: none;
+    padding: 6px 4px;
+    font-size: 0.9rem;
+    background: transparent;
+}
+
+.confirm-btn {
+    padding: 5px 12px;
+    background: var(--success);
+    color: white;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.cancel-btn {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    padding: 2px 4px;
+}
+
+/* Paid badge on event cards */
+.paid-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #15803D;
+    background: #DCFCE7;
+    padding: 3px 8px;
+    border-radius: 999px;
+    margin-top: 4px;
+}
+
+/* Section label in Mark Payment grouped list */
+.list-section-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 1rem 0 0.5rem;
+}
+
+/* Upcoming event card state */
+.payment-card--upcoming {
+    opacity: 0.75;
+    border-style: dashed;
+}
+
+.payment-card--active {
+    border-color: var(--accent);
+}
+
+/* Upcoming badge label */
+.upcoming-badge {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: #5B21B6;
+    background: #EDE9FE;
+    padding: 3px 8px;
+    border-radius: 999px;
+    flex-shrink: 0;
 }

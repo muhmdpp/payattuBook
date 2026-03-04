@@ -47,15 +47,17 @@
 
 .nav-item-fab-wrapper {
     position: relative;
-    width: 60px;
-    height: 60px;
+    width: 80px;
+    height: 80px;
     display: flex;
+    padding-bottom: 12px;
     justify-content: center;
+    align-items: center;
 }
 
 .fab-button {
-    position: absolute;
-    bottom: 35px;
+    /* position: absolute; */
+    /* bottom: 35px; */
     /* Increased to keep proportional with the new padding */
     /* Overlaps the bottom nav */
     width: 64px;
@@ -77,13 +79,18 @@
 
 /* Background cutout effect using pseudo-element trick */
 .nav-item-fab-wrapper::before {
-    content: '';
+    display: none;
+    /* Hide cutout since button is no longer overlapping significantly above */
+}
+
+.nav-label {
+    font-size: 0.65rem;
+    margin-top: 4px;
+    font-weight: 500;
+}
+
+.fab-label {
     position: absolute;
-    bottom: -5px;
-    width: 80px;
-    height: 80px;
-    background-color: var(--background);
-    /* Match the app background to look like a cutout */
-    border-radius: var(--radius-full);
-    z-index: -1;
+    bottom: -15px;
+    color: var(--text-muted);
 }

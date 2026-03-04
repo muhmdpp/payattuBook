@@ -2,12 +2,43 @@ import {
     collection,
     addDoc,
     getDocs,
+    getDoc,
     query,
     where,
+    orderBy,
     doc,
     runTransaction,
 } from "firebase/firestore";
 import { db } from "../lib/firebase";
+
+// ─────────────────────────────────────────────
+// Constants
+// ─────────────────────────────────────────────
+
+export const ME = "me"; // The single app user — always the attendee/giver
+
+// ─────────────────────────────────────────────
+// Interfaces
+// ─────────────────────────────────────────────
+
+export interface Member {
+    id?: string;
+    name: string;
+    nameMl?: string;
+    phone?: string;
+    address?: string;
+    createdAt: number;
+}
+
+export interface Event {
+    id?: string;
+    hostId: string;        // → Member.id
+    hostName?: string;     // Resolved from member (not stored, populated client-side)
+    dateTime: number;      // ms timestamp
+    place: string;
+    note?: string;
+    createdAt: number;
+}
 
 export interface Transaction {
     id?: string;
@@ -15,120 +46,278 @@ export interface Transaction {
     receiverId: string;
     amount: number;
     status: "pending" | "settled";
+    eventId?: string;
     createdAt: number;
     settledAt?: number;
+    bonusAmount?: number;
     relatedReturnId?: string;
+    // Resolved fields (not stored)
+    giverName?: string;
+    receiverName?: string;
 }
 
-const TRANSACTIONS_COLLECTION = "transactions";
+// ─────────────────────────────────────────────
+// Members
+// ─────────────────────────────────────────────
+
+export async function addMember(data: Omit<Member, "id" | "createdAt">): Promise<string> {
+    const docRef = await addDoc(collection(db, "members"), {
+        ...data,
+        createdAt: Date.now(),
+    });
+    return docRef.id;
+}
+
+export async function getAllMembers(): Promise<Member[]> {
+    const q = query(collection(db, "members"), orderBy("createdAt", "desc"));
+    const snap = await getDocs(q);
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Member));
+}
+
+export async function getMemberById(id: string): Promise<Member | null> {
+    if (id === ME) return { id: ME, name: "Me", createdAt: 0 };
+    const snap = await getDoc(doc(db, "members", id));
+    if (!snap.exists()) return null;
+    return { id: snap.id, ...snap.data() } as Member;
+}
+
+// ─────────────────────────────────────────────
+// Events
+// ─────────────────────────────────────────────
+
+export async function addEvent(
+    hostId: string,
+    dateTime: number,
+    place: string,
+    note?: string
+): Promise<string> {
+    const docRef = await addDoc(collection(db, "events"), {
+        hostId,
+        dateTime,
+        place,
+        ...(note ? { note } : {}),
+        createdAt: Date.now(),
+    });
+    return docRef.id;
+}
+
+export async function getUpcomingEvents(): Promise<Event[]> {
+    const now = Date.now();
+    const q = query(
+        collection(db, "events"),
+        where("dateTime", ">=", now),
+        orderBy("dateTime", "asc")
+    );
+    const snap = await getDocs(q);
+    const events = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Event));
+    return await resolveEventHostNames(events);
+}
+
+export async function getAllEvents(): Promise<Event[]> {
+    const q = query(collection(db, "events"), orderBy("dateTime", "desc"));
+    const snap = await getDocs(q);
+    const events = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Event));
+    return await resolveEventHostNames(events);
+}
+
+async function resolveEventHostNames(events: Event[]): Promise<Event[]> {
+    const memberCache: Record<string, string> = {};
+    const resolved = await Promise.all(
+        events.map(async (ev) => {
+            if (!memberCache[ev.hostId]) {
+                const m = await getMemberById(ev.hostId);
+                memberCache[ev.hostId] = m?.name ?? "Unknown";
+            }
+            return { ...ev, hostName: memberCache[ev.hostId] };
+        })
+    );
+    return resolved;
+}
+
+// ─────────────────────────────────────────────
+// Transactions
+// ─────────────────────────────────────────────
 
 /**
- * Feature 1: Add Contribution (Pending)
- * Adds a new pending transaction where giver gives money to receiver.
+ * Mark that I (ME) gave money to a host at an event.
+ * Creates: giverId="me" → receiverId=hostId → amount → pending
  */
-export async function addContribution(
-    giverId: string,
-    receiverId: string,
+export async function markMyPayment(
+    eventId: string,
+    hostId: string,
     amount: number
 ): Promise<string> {
-    const newTransaction: Transaction = {
-        giverId,
-        receiverId,
+    const docRef = await addDoc(collection(db, "transactions"), {
+        giverId: ME,
+        receiverId: hostId,
         amount,
         status: "pending",
+        eventId,
         createdAt: Date.now(),
-    };
-
-    const docRef = await addDoc(
-        collection(db, TRANSACTIONS_COLLECTION),
-        newTransaction
-    );
+    });
     return docRef.id;
 }
 
 /**
- * Feature 2: "Who Owes Me?" Calculation
- * Fetches all pending transactions where the user is the receiver,
- * and groups the amounts by giver.
+ * Check if I already marked a payment for a specific event.
+ * Returns the transaction if found, null if not yet paid.
  */
-export async function getOwedAmounts(
-    userId: string
-): Promise<{ giverId: string; totalOwed: number; transactions: Transaction[] }[]> {
+export async function getPaymentForEvent(eventId: string): Promise<Transaction | null> {
     const q = query(
-        collection(db, TRANSACTIONS_COLLECTION),
-        where("receiverId", "==", userId),
+        collection(db, "transactions"),
+        where("giverId", "==", ME),
+        where("eventId", "==", eventId)
+    );
+    const snap = await getDocs(q);
+    if (snap.empty) return null;
+    const d = snap.docs[0];
+    return { id: d.id, ...d.data() } as Transaction;
+}
+
+/**
+ * Get all transactions involving a specific member (they gave to me or I gave to them).
+ */
+export async function getTransactionsForMember(memberId: string): Promise<Transaction[]> {
+    const [gaveSnap, receivedSnap] = await Promise.all([
+        getDocs(query(collection(db, "transactions"), where("giverId", "==", ME), where("receiverId", "==", memberId))),
+        getDocs(query(collection(db, "transactions"), where("giverId", "==", memberId), where("receiverId", "==", ME))),
+    ]);
+    const txs: Transaction[] = [
+        ...gaveSnap.docs.map(d => ({ id: d.id, ...d.data() } as Transaction)),
+        ...receivedSnap.docs.map(d => ({ id: d.id, ...d.data() } as Transaction)),
+    ];
+    return txs.sort((a, b) => b.createdAt - a.createdAt);
+}
+
+/**
+ * Get all pending amounts grouped by host (receiverId).
+ * These are amounts hosts owe me to return in the future.
+ */
+export async function getMyPendingGiven(): Promise<
+    { memberId: string; memberName: string; totalGiven: number; transactions: Transaction[] }[]
+> {
+    const q = query(
+        collection(db, "transactions"),
+        where("giverId", "==", ME),
         where("status", "==", "pending")
     );
+    const snap = await getDocs(q);
+    const transactions: Transaction[] = snap.docs.map((d) => ({
+        id: d.id,
+        ...d.data(),
+    } as Transaction));
 
-    const querySnapshot = await getDocs(q);
-    const transactions: Transaction[] = [];
-
-    querySnapshot.forEach((doc) => {
-        transactions.push({ id: doc.id, ...doc.data() } as Transaction);
-    });
-
-    // Group by giver
-    const grouped = transactions.reduce((acc, curr) => {
-        if (!acc[curr.giverId]) {
-            acc[curr.giverId] = { giverId: curr.giverId, totalOwed: 0, transactions: [] };
+    const grouped: Record<string, { memberId: string; memberName: string; totalGiven: number; transactions: Transaction[] }> = {};
+    for (const tx of transactions) {
+        if (!grouped[tx.receiverId]) {
+            const m = await getMemberById(tx.receiverId);
+            grouped[tx.receiverId] = {
+                memberId: tx.receiverId,
+                memberName: m?.name ?? "Unknown",
+                totalGiven: 0,
+                transactions: [],
+            };
         }
-        acc[curr.giverId].totalOwed += curr.amount;
-        acc[curr.giverId].transactions.push(curr);
-        return acc;
-    }, {} as Record<string, { giverId: string; totalOwed: number; transactions: Transaction[] }>);
-
+        grouped[tx.receiverId].totalGiven += tx.amount;
+        grouped[tx.receiverId].transactions.push(tx);
+    }
     return Object.values(grouped);
 }
 
 /**
- * Feature 3: Return Contribution (Settlement)
- * Settles an old transaction and creates a new one with the original amount + bonus.
+ * Get pending amount I gave to a specific member.
+ * Used on Home page to show contextual reminder for an upcoming event.
+ */
+export async function getPendingAmountForMember(memberId: string): Promise<number> {
+    const q = query(
+        collection(db, "transactions"),
+        where("giverId", "==", ME),
+        where("receiverId", "==", memberId),
+        where("status", "==", "pending")
+    );
+    const snap = await getDocs(q);
+    return snap.docs.reduce((sum, d) => sum + (d.data().amount as number), 0);
+}
+
+/**
+ * Get all transactions (pending + settled), newest first, with resolved names.
+ */
+export async function getAllTransactions(): Promise<Transaction[]> {
+    const q = query(collection(db, "transactions"), orderBy("createdAt", "desc"));
+    const snap = await getDocs(q);
+    const txs: Transaction[] = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Transaction));
+
+    const memberCache: Record<string, string> = {};
+    async function resolveName(id: string): Promise<string> {
+        if (id === ME) return "Me";
+        if (memberCache[id]) return memberCache[id];
+        const m = await getMemberById(id);
+        memberCache[id] = m?.name ?? "Unknown";
+        return memberCache[id];
+    }
+
+    return await Promise.all(
+        txs.map(async (tx) => ({
+            ...tx,
+            giverName: await resolveName(tx.giverId),
+            receiverName: await resolveName(tx.receiverId),
+        }))
+    );
+}
+
+/**
+ * Settle an old transaction and create a new return entry.
+ * Used when a host returns money to me (with a custom bonus).
+ *
+ * Old:  me → hostId → 1000 → pending
+ * New:  hostId → me → 1200 → pending (1000 + 200 bonus)
  */
 export async function settleAndReturn(
     originalTransactionId: string,
     originalAmount: number,
     bonusAmount: number,
-    currentGiverId: string, // The person returning the money (was the receiver)
-    currentReceiverId: string // The person receiving the return (was the giver)
+    hostId: string
 ): Promise<string> {
-    let newTransactionId = "";
+    let newId = "";
+    await runTransaction(db, async (t) => {
+        const oldRef = doc(db, "transactions", originalTransactionId);
+        const oldDoc = await t.get(oldRef);
+        if (!oldDoc.exists()) throw new Error("Transaction not found.");
+        if (oldDoc.data().status !== "pending") throw new Error("Already settled.");
 
-    await runTransaction(db, async (transaction) => {
-        const oldDocRef = doc(db, TRANSACTIONS_COLLECTION, originalTransactionId);
-
-        // 1. Verify the old document exists (optional safety check, but good practice)
-        const oldDoc = await transaction.get(oldDocRef);
-        if (!oldDoc.exists()) {
-            throw new Error("Original transaction does not exist!");
-        }
-
-        if (oldDoc.data().status !== "pending") {
-            throw new Error("Original transaction is already settled!");
-        }
-
-        // 2. Prepare the new returned transaction
-        const newTransactionRef = doc(collection(db, TRANSACTIONS_COLLECTION));
-        const newTransactionData: Transaction = {
-            giverId: currentGiverId,
-            receiverId: currentReceiverId,
+        const newRef = doc(collection(db, "transactions"));
+        const newTx: Transaction = {
+            giverId: hostId,
+            receiverId: ME,
             amount: originalAmount + bonusAmount,
+            bonusAmount,
             status: "pending",
             createdAt: Date.now(),
         };
 
-        // 3. Perform the writes in the transaction block
-        // Mark old as settled
-        transaction.update(oldDocRef, {
+        t.update(oldRef, {
             status: "settled",
             settledAt: Date.now(),
-            relatedReturnId: newTransactionRef.id,
+            relatedReturnId: newRef.id,
         });
-
-        // Create new pending entry
-        transaction.set(newTransactionRef, newTransactionData);
-
-        newTransactionId = newTransactionRef.id;
+        t.set(newRef, newTx);
+        newId = newRef.id;
     });
+    return newId;
+}
 
-    return newTransactionId;
+// Legacy alias kept for compatibility
+export async function addContribution(
+    giverId: string,
+    receiverId: string,
+    amount: number
+): Promise<string> {
+    const docRef = await addDoc(collection(db, "transactions"), {
+        giverId,
+        receiverId,
+        amount,
+        status: "pending",
+        createdAt: Date.now(),
+    });
+    return docRef.id;
 }

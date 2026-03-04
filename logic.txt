@@ -1,0 +1,122 @@
+
+Payattu Core Logic – For Implementation Reference
+
+This application is based on a traditional system called Payattu.
+
+The logic must strictly follow the rules below.
+Do not introduce additional financial assumptions.
+
+1. A Member Can Conduct Multiple Payatt Events
+
+Any member can conduct a Payatt event.
+
+A member may conduct multiple events over time.
+
+Each event is independent and must be recorded separately.
+
+2. Each Event Logs Contributions
+
+When a member (for example, Member A) conducts a Payatt event:
+
+Other members give money to the host.
+
+Each contribution is recorded as a transaction.
+
+These transactions are marked as pending.
+
+Example:
+
+B gives ₹1000 to A → record: B → A → 1000 → pending
+
+C gives ₹1500 to A → record: C → A → 1500 → pending
+
+Each contribution must be stored individually.
+
+3. Before Conducting the Next Payatt
+
+Before a member conducts a new Payatt event, the system must:
+
+Retrieve all pending transactions where:
+
+receiver = that member
+
+status = pending
+
+Group the results by giver.
+
+Show how much each member currently owes.
+
+This is the “Who owes me?” list.
+
+No additional calculations are required beyond summing pending amounts.
+
+4. When a Contributor Later Conducts Their Own Payatt
+
+If Member B previously gave money to Member A,
+and now Member B conducts a Payatt event:
+
+Member A must return:
+
+The original pending amount
+
+Plus a custom additional amount (bonus)
+
+Return Amount = Original Amount + Custom Bonus
+
+The bonus is manually entered.
+There is no automatic interest calculation.
+
+5. Old Debt Is Removed and Replaced
+
+When repayment happens:
+
+Step 1:
+
+Mark the old pending transaction as settled.
+
+Step 2:
+
+Create a new transaction entry reflecting the returned amount.
+
+Example:
+
+Old:
+B → A → 1000 → pending
+
+After return:
+
+B → A → 1000 → settled
+
+A → B → 1200 → new entry
+
+The cycle continues this way.
+
+Important Implementation Notes
+
+No automatic interest.
+
+No compounding beyond manual bonus.
+
+No partial payment logic.
+
+No loan system behavior.
+
+Strictly: pending → settled → new entry.
+
+Each transaction must remain historically recorded.
+
+Summary
+
+The system is a rotating obligation model:
+
+A member conducts an event.
+
+Others contribute.
+
+Contributions remain pending.
+
+When roles reverse, the earlier host returns the amount plus a custom bonus.
+
+The old record is settled and replaced with a new transaction.
+
+This logic must be followed exactly without introducing additional financial rules.
