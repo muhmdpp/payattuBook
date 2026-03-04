@@ -136,6 +136,40 @@ export async function addEvent(
     return data.id;
 }
 
+export async function updateEvent(
+    id: string,
+    hostId: string,
+    dateTime: number,
+    place: string,
+    note?: string
+): Promise<void> {
+    const { error } = await supabase
+        .from("events")
+        .update({
+            host_id: hostId,
+            date_time: new Date(dateTime).toISOString(),
+            place,
+            note
+        })
+        .eq("id", id);
+
+    if (error) throw new Error(error.message);
+}
+
+export async function updateMember(id: string, data: Omit<Member, "id" | "createdAt">): Promise<void> {
+    const { error } = await supabase
+        .from("members")
+        .update({
+            name: data.name,
+            name_ml: data.nameMl,
+            phone: data.phone,
+            address: data.address,
+        })
+        .eq("id", id);
+
+    if (error) throw new Error(error.message);
+}
+
 /**
  * Notice how Supabase lets us JOIN the member table in one query.
  * No N+1 queries needed anymore!
@@ -397,4 +431,73 @@ export async function addContribution(
         .single();
     if (error) throw new Error(error.message);
     return data.id;
+}
+
+/**
+ * Records money received from a NEW giver (no prior pending transaction).
+ * Creates: giver=memberId → receiver=ME → amount → PENDING
+ */
+export async function receiveFromNewMember(memberId: string, amount: number): Promise<string> {
+    const { data, error } = await supabase
+        .from("transactions")
+        .insert([{
+            giver_id: memberId,
+            receiver_id: ME,
+            amount,
+            status: "pending"
+        }])
+        .select("id")
+        .single();
+    if (error) throw new Error(error.message);
+    return data.id;
+}
+
+/**
+ * Settles ALL pending transactions from ME → memberId at once,
+ * and creates one new return record: memberId → ME.
+ */
+export async function settleAllAndReturn(
+    memberId: string,
+    returnAmount: number,
+    bonusAmount: number
+): Promise<string> {
+    // Get all pending tx IDs for this member
+    const { data: pendingTxs, error: fetchErr } = await supabase
+        .from("transactions")
+        .select("id")
+        .eq("giver_id", ME)
+        .eq("receiver_id", memberId)
+        .eq("status", "pending");
+
+    if (fetchErr) throw new Error(fetchErr.message);
+
+    // 1. Insert the new return record
+    const { data: newTx, error: insertErr } = await supabase
+        .from("transactions")
+        .insert([{
+            giver_id: memberId,
+            receiver_id: ME,
+            amount: returnAmount,
+            bonus_amount: bonusAmount,
+            status: "pending"
+        }])
+        .select("id")
+        .single();
+    if (insertErr) throw new Error(insertErr.message);
+
+    // 2. Settle all old pending transactions
+    if (pendingTxs.length > 0) {
+        const ids = pendingTxs.map((t: { id: string }) => t.id);
+        const { error: updateErr } = await supabase
+            .from("transactions")
+            .update({
+                status: "settled",
+                settled_at: new Date().toISOString(),
+                related_return_id: newTx.id
+            })
+            .in("id", ids);
+        if (updateErr) throw new Error(updateErr.message);
+    }
+
+    return newTx.id;
 }

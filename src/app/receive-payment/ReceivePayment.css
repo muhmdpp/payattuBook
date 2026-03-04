@@ -1,0 +1,253 @@
+.rp-main {
+    flex: 1;
+    padding: 1.25rem;
+    overflow-y: auto;
+}
+
+.rp-section-label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-main);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.4rem;
+}
+
+.rp-hint {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.rp-loading,
+.rp-empty {
+    display: flex;
+    justify-content: center;
+    padding: 2.5rem 0;
+    color: #9CA3AF;
+    font-size: 0.875rem;
+}
+
+/* ── Cards ──────────────────────────────────────────────── */
+.rp-card {
+    background: white;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    padding: 0.9rem 1rem;
+    margin-bottom: 0.65rem;
+    transition: opacity 0.2s;
+}
+
+.rp-card--settled {
+    opacity: 0.6;
+    border-color: #BBF7D0;
+    background: #F0FDF4;
+}
+
+.rp-card-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.rp-member-name {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.rp-original {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.rp-original strong {
+    color: #F59E0B;
+}
+
+.rp-card-right {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+/* ── Amount row ──────────────────────────────────────────── */
+.rp-amount-row {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    flex: 1;
+    background: #F9FAFB;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0.5rem 0.75rem;
+}
+
+.rp-rupee {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.rp-amount-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-main);
+    outline: none;
+    min-width: 0;
+}
+
+.rp-settle-btn {
+    background: var(--primary);
+    color: white;
+    padding: 0.55rem 1rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.82rem;
+    font-weight: 600;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.rp-settle-btn:disabled {
+    opacity: 0.6;
+}
+
+.rp-settled-badge {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #16A34A;
+    background: #DCFCE7;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+}
+
+/* ── New giver card ──────────────────────────────────────── */
+.rp-new-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.rp-search-wrap {
+    position: relative;
+}
+
+.rp-search-box {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: #F9FAFB;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0.6rem 0.75rem;
+}
+
+.rp-search-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 0.875rem;
+    outline: none;
+    min-width: 0;
+    color: var(--text-main);
+}
+
+.rp-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-sm);
+    z-index: 50;
+    overflow: hidden;
+}
+
+.rp-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.65rem 0.85rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+    color: var(--text-main);
+}
+
+.rp-dropdown-item:hover {
+    background: #F9FAFB;
+}
+
+.rp-new-bottom {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* ── Add button ──────────────────────────────────────────── */
+.rp-add-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    width: 100%;
+    justify-content: center;
+    padding: 0.75rem;
+    margin-top: 0.5rem;
+    border: 1.5px dashed var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    background: white;
+    font-weight: 500;
+}
+
+.rp-add-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+/* ── Error toast (fixed, floating) ──────────────────────── */
+.rp-toast {
+    position: fixed;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1F2937;
+    color: white;
+    font-size: 0.82rem;
+    font-weight: 500;
+    padding: 0.65rem 1.25rem;
+    border-radius: 999px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    z-index: 999;
+    white-space: nowrap;
+    animation: toastIn 0.2s ease;
+    max-width: 90vw;
+    text-align: center;
+}
+
+@keyframes toastIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}

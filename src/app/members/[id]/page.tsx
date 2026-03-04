@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import Header from '@/components/Header';
 import BottomNav from '@/components/BottomNav';
-import { Phone, MapPin, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
+import { Phone, MapPin, ArrowUpRight, ArrowDownLeft, ChevronLeft } from 'lucide-react';
 import { getMemberById, getTransactionsForMember, Member, Transaction, ME } from '@/services/payattuService';
 
 function formatDate(ms: number): string {
@@ -53,11 +53,13 @@ export default function MemberDetailPage() {
 
     return (
         <div className="page-container">
-            <Header title={loading ? 'Member' : (member?.name ?? 'Member')} />
             <main style={{ flex: 1, overflowY: 'auto' }}>
 
-                {/* Profile banner */}
-                <div style={{ background: 'var(--primary-gradient)', padding: '1.5rem 1.25rem 2.5rem', color: 'white' }}>
+                {/* Profile banner with floating back button */}
+                <div style={{ background: 'var(--primary-gradient)', padding: '3rem 1.25rem 2.5rem', color: 'white', position: 'relative' }}>
+                    <Link href="/members" style={{ position: 'absolute', top: '1rem', left: '1rem', display: 'flex', alignItems: 'center', color: 'white', opacity: 0.85 }}>
+                        <ChevronLeft size={24} />
+                    </Link>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                         <div className="avatar-circle large" style={{ width: 64, height: 64, border: '3px solid rgba(255,255,255,0.4)' }} />
                         <div>
@@ -92,7 +94,7 @@ export default function MemberDetailPage() {
                 </div>
 
                 {/* Summary cards */}
-                <div style={{ display: 'flex', gap: '0.75rem', padding: '1rem 1.25rem', marginTop: '-1rem', position: 'relative', zIndex: 10 }}>
+                <div style={{ display: 'flex', gap: '0.75rem', padding: '1rem 1.25rem', marginTop: '-0.5rem', position: 'relative', zIndex: 10 }}>
                     <div style={{ flex: 1, background: '#FEF3C7', borderRadius: '0.75rem', padding: '0.875rem', textAlign: 'center' }}>
                         <p style={{ fontSize: '0.65rem', color: '#92400E', fontWeight: 500 }}>I Gave (Pending)</p>
                         <p style={{ fontSize: '1rem', fontWeight: 700, color: '#B45309' }}>₹{totalGiven.toLocaleString('en-IN')}</p>

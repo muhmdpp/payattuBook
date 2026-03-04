@@ -121,6 +121,7 @@
     padding: 2rem 1.25rem;
     z-index: 10;
     position: relative;
+    overflow-y: auto;
 }
 
 .list-section {

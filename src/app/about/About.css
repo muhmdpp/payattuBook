@@ -1,0 +1,188 @@
+.about-main {
+    flex: 1;
+    overflow-y: auto;
+    background: #F9FAFB;
+}
+
+/* ── Hero ──────────────────────────────────────────── */
+.about-hero {
+    background: var(--primary-gradient);
+    padding: 3rem 1.5rem 2.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+.about-back {
+    position: absolute;
+    top: 1.25rem;
+    left: 1.25rem;
+    opacity: 0.85;
+    display: flex;
+}
+
+.about-avatar-ring {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.5);
+    padding: 4px;
+    margin-bottom: 1rem;
+}
+
+.about-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.about-name {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 0.3rem;
+}
+
+.about-tagline {
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.75);
+    margin-bottom: 1.25rem;
+}
+
+.about-socials {
+    display: flex;
+    gap: 0.65rem;
+}
+
+.social-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.social-pill.instagram {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.social-pill.linkedin {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.social-pill:active {
+    opacity: 0.75;
+}
+
+/* ── Content ───────────────────────────────────────── */
+.about-content {
+    padding: 1.5rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.about-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    padding: 1.1rem 1.25rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.about-card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.about-card-title {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 0.35rem;
+}
+
+.about-card-body {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.55;
+}
+
+/* ── Links section ─────────────────────────────────── */
+.about-links-section {
+    background: white;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+.about-links-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    padding: 0.85rem 1.25rem 0.5rem;
+}
+
+.about-link-row {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.85rem 1.25rem;
+    text-decoration: none;
+    color: var(--text-main);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.about-link-row:active {
+    background: #F9FAFB;
+}
+
+.about-link-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.instagram-bg {
+    background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+}
+
+.linkedin-bg {
+    background: #0077B5;
+}
+
+.about-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 0 1.25rem;
+}
+
+.about-version {
+    text-align: center;
+    font-size: 0.72rem;
+    color: #9CA3AF;
+    padding-bottom: 0.5rem;
+}

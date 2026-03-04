@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { Bell, IndianRupee, CalendarPlus, History, CalendarDays, ArrowLeftRight, CalendarCheck } from 'lucide-react';
+import { Bell, IndianRupee, CalendarPlus, History, CalendarDays, ArrowLeftRight, CalendarCheck, ArrowDownToLine } from 'lucide-react';
 import BottomNav from '@/components/BottomNav';
 import { getUpcomingEvents, getAllTransactions, getPendingAmountForMember, getPaymentForEvent, Event, Transaction, ME } from '@/services/payattuService';
 import './Home.css';
@@ -76,7 +76,7 @@ export default function Home() {
                     </button>
                 </header>
 
-                <div className="action-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+                <div className="action-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
                     <Link href="/mark-payment" className="action-item">
                         <div className="action-icon-wrapper">
                             <div className="diamond-frame"><IndianRupee size={24} color="white" /></div>
@@ -86,6 +86,12 @@ export default function Home() {
                     <Link href="/add-event" className="action-item">
                         <div className="action-icon-wrapper"><CalendarPlus size={24} color="white" /></div>
                         <span className="action-label">Add Event</span>
+                    </Link>
+                    <Link href="/receive-payment" className="action-item">
+                        <div className="action-icon-wrapper" style={{ background: 'linear-gradient(135deg, #22C55E, #16A34A)' }}>
+                            <ArrowDownToLine size={24} color="white" />
+                        </div>
+                        <span className="action-label">Receive</span>
                     </Link>
                     <Link href="/history" className="action-item">
                         <div className="action-icon-wrapper"><History size={24} color="white" /></div>

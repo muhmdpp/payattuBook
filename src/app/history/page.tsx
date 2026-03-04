@@ -3,11 +3,30 @@
 import { useState, useEffect, useCallback } from 'react';
 import Header from '@/components/Header';
 import BottomNav from '@/components/BottomNav';
-import { ArrowDownLeft, ArrowUpRight, Loader, BookOpen } from 'lucide-react';
+import { ArrowDownLeft, ArrowUpRight, BookOpen } from 'lucide-react';
 import { getAllTransactions, Transaction, ME } from '@/services/payattuService';
 
 function formatDate(ms: number): string {
     return new Date(ms).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+function SkeletonTxCard() {
+    return (
+        <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '1rem 1.25rem', background: 'white', borderRadius: '0.75rem',
+            border: '1px solid var(--border)', marginBottom: '0.75rem', boxShadow: 'var(--shadow-sm)'
+        }}>
+            <div style={{ flex: 1 }}>
+                <div className="skeleton skeleton-text wide" style={{ marginBottom: 6 }} />
+                <div className="skeleton skeleton-text short" />
+            </div>
+            <div style={{ width: 80, textAlign: 'right' }}>
+                <div className="skeleton skeleton-text full" style={{ marginBottom: 6 }} />
+                <div className="skeleton skeleton-text short" style={{ marginLeft: 'auto' }} />
+            </div>
+        </div>
+    );
 }
 
 export default function HistoryPage() {
@@ -26,7 +45,6 @@ export default function HistoryPage() {
 
     useEffect(() => { load(); }, [load]);
 
-    // Separate: money I gave OUT vs. money returned TO me
     const outgoing = transactions.filter(t => t.giverId === ME);
     const incoming = transactions.filter(t => t.receiverId === ME);
 
@@ -36,9 +54,21 @@ export default function HistoryPage() {
             <main style={{ flex: 1, padding: '1.25rem', overflowY: 'auto' }}>
 
                 {loading ? (
-                    <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem' }}>
-                        <Loader size={28} color="#D1D5DB" className="spin" />
-                    </div>
+                    <>
+                        {/* Skeleton — Money I Gave */}
+                        <div className="section-header" style={{ marginBottom: '0.75rem' }}>
+                            <div className="skeleton skeleton-circle" style={{ width: 32, height: 32, borderRadius: '50%' }} />
+                            <div className="skeleton skeleton-text wide" style={{ height: '1rem' }} />
+                        </div>
+                        <SkeletonTxCard /><SkeletonTxCard /><SkeletonTxCard />
+
+                        {/* Skeleton — Returned to Me */}
+                        <div className="section-header" style={{ margin: '1.5rem 0 0.75rem' }}>
+                            <div className="skeleton skeleton-circle" style={{ width: 32, height: 32, borderRadius: '50%' }} />
+                            <div className="skeleton skeleton-text wide" style={{ height: '1rem' }} />
+                        </div>
+                        <SkeletonTxCard /><SkeletonTxCard />
+                    </>
                 ) : transactions.length === 0 ? (
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60%', color: '#9CA3AF', gap: '1rem' }}>
                         <BookOpen size={48} color="#D1D5DB" />

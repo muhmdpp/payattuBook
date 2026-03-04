@@ -3,9 +3,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import Header from '@/components/Header';
 import BottomNav from '@/components/BottomNav';
-import { PlusCircle, Search, CalendarDays, BookOpen, Check, Loader } from 'lucide-react';
+import { PlusCircle, Search, CalendarDays, BookOpen, Check, Loader, Pencil, X } from 'lucide-react';
 import Link from 'next/link';
-import { addEvent, getAllEvents, getAllMembers, Member, Event } from '@/services/payattuService';
+import { addEvent, updateEvent, getAllEvents, getAllMembers, Member, Event } from '@/services/payattuService';
 import './AddEvent.css';
 
 function formatDateTime(ms: number): string {
@@ -23,6 +23,10 @@ function timeAgo(ms: number): string {
     return `${Math.floor(h / 24)}d ago`;
 }
 
+// Convert timestamp to date/time inputs
+function msToDate(ms: number) { return new Date(ms).toISOString().slice(0, 10); }
+function msToTime(ms: number) { return new Date(ms).toTimeString().slice(0, 5); }
+
 export default function AddEventPage() {
     const [members, setMembers] = useState<Member[]>([]);
     const [search, setSearch] = useState('');
@@ -36,6 +40,17 @@ export default function AddEventPage() {
     const [error, setError] = useState('');
     const [events, setEvents] = useState<Event[]>([]);
     const [loadingList, setLoadingList] = useState(true);
+
+    // ── Edit modal state ───────────────────────────────────────────────────────
+    const [editEvent, setEditEvent] = useState<Event | null>(null);
+    const [editSearch, setEditSearch] = useState('');
+    const [editShowDropdown, setEditShowDropdown] = useState(false);
+    const [editHost, setEditHost] = useState<Member | null>(null);
+    const [editDate, setEditDate] = useState('');
+    const [editTime, setEditTime] = useState('');
+    const [editPlace, setEditPlace] = useState('');
+    const [editLoading, setEditLoading] = useState(false);
+    const [editError, setEditError] = useState('');
 
     const loadData = useCallback(async () => {
         setLoadingList(true);
@@ -55,12 +70,24 @@ export default function AddEventPage() {
         (m.nameMl && m.nameMl.includes(search))
     );
 
+    const editFiltered = members.filter(m =>
+        m.name.toLowerCase().includes(editSearch.toLowerCase()) ||
+        (m.nameMl && m.nameMl.includes(editSearch))
+    );
+
     const handleSelectHost = (m: Member) => {
         setSelectedHost(m);
         setSearch(m.name);
         setShowDropdown(false);
     };
 
+    const handleSelectEditHost = (m: Member) => {
+        setEditHost(m);
+        setEditSearch(m.name);
+        setEditShowDropdown(false);
+    };
+
+    // ── Add submit ─────────────────────────────────────────────────────────────
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!selectedHost) { setError('Please select a host member.'); return; }
@@ -78,6 +105,37 @@ export default function AddEventPage() {
             setError('Failed to save event. Try again.');
         } finally {
             setLoading(false);
+        }
+    };
+
+    // ── Open edit ──────────────────────────────────────────────────────────────
+    const openEdit = (ev: Event) => {
+        setEditEvent(ev);
+        setEditSearch(ev.hostName ?? '');
+        const host = members.find(m => m.id === ev.hostId) ?? null;
+        setEditHost(host);
+        setEditDate(msToDate(ev.dateTime));
+        setEditTime(msToTime(ev.dateTime));
+        setEditPlace(ev.place);
+        setEditError('');
+    };
+
+    // ── Edit submit ────────────────────────────────────────────────────────────
+    const handleEditSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!editEvent?.id || !editHost) { setEditError('Please select a host.'); return; }
+        if (!editDate || !editTime) { setEditError('Date and time are required.'); return; }
+        if (!editPlace.trim()) { setEditError('Place is required.'); return; }
+        setEditLoading(true); setEditError('');
+        try {
+            const dateTime = new Date(`${editDate}T${editTime}`).getTime();
+            await updateEvent(editEvent.id, editHost.id!, dateTime, editPlace.trim());
+            setEditEvent(null);
+            await loadData();
+        } catch {
+            setEditError('Failed to save. Try again.');
+        } finally {
+            setEditLoading(false);
         }
     };
 
@@ -163,7 +221,12 @@ export default function AddEventPage() {
                                     <p>{formatDateTime(ev.dateTime)}</p>
                                     <p>{ev.place}</p>
                                 </div>
-                                <div className="time-ago">{timeAgo(ev.createdAt)}</div>
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.4rem' }}>
+                                    <span className="time-ago">{timeAgo(ev.createdAt)}</span>
+                                    <button className="edit-icon-btn" onClick={() => openEdit(ev)} aria-label="Edit event">
+                                        <Pencil size={15} color="#9CA3AF" />
+                                    </button>
+                                </div>
                             </div>
                         ))
                     )}
@@ -171,6 +234,63 @@ export default function AddEventPage() {
 
                 <div style={{ height: '100px' }} />
             </main>
+
+            {/* ── Edit Bottom Sheet ──────────────────────────────────────────────── */}
+            {editEvent && (
+                <div className="edit-overlay" onClick={() => setEditEvent(null)}>
+                    <div className="edit-sheet" onClick={e => e.stopPropagation()}>
+                        <div className="edit-sheet-header">
+                            <span className="edit-sheet-title">Edit Event</span>
+                            <button className="edit-sheet-close" onClick={() => setEditEvent(null)}>
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleEditSubmit}>
+                            {/* Host search */}
+                            <div className="input-group search-group" style={{ marginBottom: '1rem' }}>
+                                <input
+                                    type="text"
+                                    placeholder="Search host member…"
+                                    className="input-field"
+                                    value={editSearch}
+                                    onChange={e => { setEditSearch(e.target.value); setEditShowDropdown(true); setEditHost(null); }}
+                                    onFocus={() => setEditShowDropdown(true)}
+                                />
+                                {editHost
+                                    ? <Check size={18} style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#22C55E' }} />
+                                    : <Search size={18} className="input-icon" color="#9CA3AF" />
+                                }
+                                {editShowDropdown && editSearch && editFiltered.length > 0 && (
+                                    <div className="search-dropdown">
+                                        {editFiltered.map(m => (
+                                            <div key={m.id} className="dropdown-item" onClick={() => handleSelectEditHost(m)}>
+                                                <div className="avatar-circle tiny" />
+                                                <span>{m.name}{m.nameMl ? ` (${m.nameMl})` : ''}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="row-inputs">
+                                <input type="date" className="input-field half-width" value={editDate} onChange={e => setEditDate(e.target.value)} />
+                                <input type="time" className="input-field half-width" value={editTime} onChange={e => setEditTime(e.target.value)} />
+                            </div>
+
+                            <div className="input-group" style={{ margin: '1rem 0 1.5rem' }}>
+                                <input type="text" placeholder="Place / Venue" className="input-field" value={editPlace} onChange={e => setEditPlace(e.target.value)} />
+                            </div>
+
+                            {editError && <p className="error-text">{editError}</p>}
+                            <button type="submit" className="btn-primary" disabled={editLoading}>
+                                {editLoading ? <Loader size={18} className="spin" /> : 'Save Changes'}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
+
             <BottomNav />
         </div>
     );
