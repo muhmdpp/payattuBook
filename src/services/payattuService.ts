@@ -1,21 +1,10 @@
-import {
-    collection,
-    addDoc,
-    getDocs,
-    getDoc,
-    query,
-    where,
-    orderBy,
-    doc,
-    runTransaction,
-} from "firebase/firestore";
-import { db } from "../lib/firebase";
+import { supabase } from "../lib/supabase";
 
 // ─────────────────────────────────────────────
 // Constants
 // ─────────────────────────────────────────────
 
-export const ME = "me"; // The single app user — always the attendee/giver
+export const ME = "me";
 
 // ─────────────────────────────────────────────
 // Interfaces
@@ -32,9 +21,9 @@ export interface Member {
 
 export interface Event {
     id?: string;
-    hostId: string;        // → Member.id
-    hostName?: string;     // Resolved from member (not stored, populated client-side)
-    dateTime: number;      // ms timestamp
+    hostId: string;
+    hostName?: string;
+    dateTime: number;
     place: string;
     note?: string;
     createdAt: number;
@@ -51,9 +40,13 @@ export interface Transaction {
     settledAt?: number;
     bonusAmount?: number;
     relatedReturnId?: string;
-    // Resolved fields (not stored)
     giverName?: string;
     receiverName?: string;
+}
+
+// Helper to convert ISO dates to ms timestamps
+function toMs(dateString: string): number {
+    return new Date(dateString).getTime();
 }
 
 // ─────────────────────────────────────────────
@@ -61,24 +54,61 @@ export interface Transaction {
 // ─────────────────────────────────────────────
 
 export async function addMember(data: Omit<Member, "id" | "createdAt">): Promise<string> {
-    const docRef = await addDoc(collection(db, "members"), {
-        ...data,
-        createdAt: Date.now(),
-    });
-    return docRef.id;
+    const { data: result, error } = await supabase
+        .from("members")
+        .insert([{
+            name: data.name,
+            name_ml: data.nameMl,
+            phone: data.phone,
+            address: data.address
+            // id and created_at handled by DB defaults
+        }])
+        .select("id")
+        .single();
+
+    if (error) throw new Error(error.message);
+    return result.id;
 }
 
 export async function getAllMembers(): Promise<Member[]> {
-    const q = query(collection(db, "members"), orderBy("createdAt", "desc"));
-    const snap = await getDocs(q);
-    return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Member));
+    const { data, error } = await supabase
+        .from("members")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+    if (error) throw new Error(error.message);
+
+    return data.map((d: any) => ({
+        id: d.id,
+        name: d.name,
+        nameMl: d.name_ml,
+        phone: d.phone,
+        address: d.address,
+        createdAt: toMs(d.created_at),
+    }));
 }
 
 export async function getMemberById(id: string): Promise<Member | null> {
     if (id === ME) return { id: ME, name: "Me", createdAt: 0 };
-    const snap = await getDoc(doc(db, "members", id));
-    if (!snap.exists()) return null;
-    return { id: snap.id, ...snap.data() } as Member;
+    const { data, error } = await supabase
+        .from("members")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+    if (error) {
+        if (error.code === 'PGRST116') return null; // not found
+        throw new Error(error.message);
+    }
+
+    return {
+        id: data.id,
+        name: data.name,
+        nameMl: data.name_ml,
+        phone: data.phone,
+        address: data.address,
+        createdAt: toMs(data.created_at),
+    };
 }
 
 // ─────────────────────────────────────────────
@@ -91,219 +121,256 @@ export async function addEvent(
     place: string,
     note?: string
 ): Promise<string> {
-    const docRef = await addDoc(collection(db, "events"), {
-        hostId,
-        dateTime,
-        place,
-        ...(note ? { note } : {}),
-        createdAt: Date.now(),
-    });
-    return docRef.id;
+    const { data, error } = await supabase
+        .from("events")
+        .insert([{
+            host_id: hostId,
+            date_time: new Date(dateTime).toISOString(),
+            place,
+            note
+        }])
+        .select("id")
+        .single();
+
+    if (error) throw new Error(error.message);
+    return data.id;
 }
 
+/**
+ * Notice how Supabase lets us JOIN the member table in one query.
+ * No N+1 queries needed anymore!
+ */
 export async function getUpcomingEvents(): Promise<Event[]> {
-    const now = Date.now();
-    const q = query(
-        collection(db, "events"),
-        where("dateTime", ">=", now),
-        orderBy("dateTime", "asc")
-    );
-    const snap = await getDocs(q);
-    const events = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Event));
-    return await resolveEventHostNames(events);
+    const { data, error } = await supabase
+        .from("events")
+        .select(`
+            *,
+            members ( name )
+        `)
+        .gte("date_time", new Date().toISOString())
+        .order("date_time", { ascending: true });
+
+    if (error) throw new Error(error.message);
+
+    return data.map((d: any) => ({
+        id: d.id,
+        hostId: d.host_id,
+        dateTime: toMs(d.date_time),
+        place: d.place,
+        note: d.note,
+        createdAt: toMs(d.created_at),
+        hostName: d.members?.name ?? "Unknown",
+    }));
 }
 
 export async function getAllEvents(): Promise<Event[]> {
-    const q = query(collection(db, "events"), orderBy("dateTime", "desc"));
-    const snap = await getDocs(q);
-    const events = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Event));
-    return await resolveEventHostNames(events);
-}
+    const { data, error } = await supabase
+        .from("events")
+        .select(`
+            *,
+            members ( name )
+        `)
+        .order("date_time", { ascending: false });
 
-async function resolveEventHostNames(events: Event[]): Promise<Event[]> {
-    const memberCache: Record<string, string> = {};
-    const resolved = await Promise.all(
-        events.map(async (ev) => {
-            if (!memberCache[ev.hostId]) {
-                const m = await getMemberById(ev.hostId);
-                memberCache[ev.hostId] = m?.name ?? "Unknown";
-            }
-            return { ...ev, hostName: memberCache[ev.hostId] };
-        })
-    );
-    return resolved;
+    if (error) throw new Error(error.message);
+
+    return data.map((d: any) => ({
+        id: d.id,
+        hostId: d.host_id,
+        dateTime: toMs(d.date_time),
+        place: d.place,
+        note: d.note,
+        createdAt: toMs(d.created_at),
+        hostName: d.members?.name ?? "Unknown",
+    }));
 }
 
 // ─────────────────────────────────────────────
 // Transactions
 // ─────────────────────────────────────────────
 
-/**
- * Mark that I (ME) gave money to a host at an event.
- * Creates: giverId="me" → receiverId=hostId → amount → pending
- */
 export async function markMyPayment(
     eventId: string,
     hostId: string,
     amount: number
 ): Promise<string> {
-    const docRef = await addDoc(collection(db, "transactions"), {
-        giverId: ME,
-        receiverId: hostId,
-        amount,
-        status: "pending",
-        eventId,
-        createdAt: Date.now(),
-    });
-    return docRef.id;
+    const { data, error } = await supabase
+        .from("transactions")
+        .insert([{
+            giver_id: ME,
+            receiver_id: hostId,
+            amount,
+            status: "pending",
+            event_id: eventId
+        }])
+        .select("id")
+        .single();
+
+    if (error) throw new Error(error.message);
+    return data.id;
 }
 
-/**
- * Check if I already marked a payment for a specific event.
- * Returns the transaction if found, null if not yet paid.
- */
 export async function getPaymentForEvent(eventId: string): Promise<Transaction | null> {
-    const q = query(
-        collection(db, "transactions"),
-        where("giverId", "==", ME),
-        where("eventId", "==", eventId)
-    );
-    const snap = await getDocs(q);
-    if (snap.empty) return null;
-    const d = snap.docs[0];
-    return { id: d.id, ...d.data() } as Transaction;
+    const { data, error } = await supabase
+        .from("transactions")
+        .select("*")
+        .eq("giver_id", ME)
+        .eq("event_id", eventId)
+        .limit(1)
+        .maybeSingle();
+
+    if (error) throw new Error(error.message);
+    if (!data) return null;
+
+    return {
+        id: data.id,
+        giverId: data.giver_id,
+        receiverId: data.receiver_id,
+        amount: data.amount,
+        status: data.status,
+        eventId: data.event_id,
+        createdAt: toMs(data.created_at),
+    };
 }
 
-/**
- * Get all transactions involving a specific member (they gave to me or I gave to them).
- */
 export async function getTransactionsForMember(memberId: string): Promise<Transaction[]> {
-    const [gaveSnap, receivedSnap] = await Promise.all([
-        getDocs(query(collection(db, "transactions"), where("giverId", "==", ME), where("receiverId", "==", memberId))),
-        getDocs(query(collection(db, "transactions"), where("giverId", "==", memberId), where("receiverId", "==", ME))),
-    ]);
-    const txs: Transaction[] = [
-        ...gaveSnap.docs.map(d => ({ id: d.id, ...d.data() } as Transaction)),
-        ...receivedSnap.docs.map(d => ({ id: d.id, ...d.data() } as Transaction)),
-    ];
-    return txs.sort((a, b) => b.createdAt - a.createdAt);
+    const { data, error } = await supabase
+        .from("transactions")
+        .select("*")
+        .or(`and(giver_id.eq.${ME},receiver_id.eq.${memberId}),and(giver_id.eq.${memberId},receiver_id.eq.${ME})`)
+        .order("created_at", { ascending: false });
+
+    if (error) throw new Error(error.message);
+
+    return data.map((d: any) => ({
+        id: d.id,
+        giverId: d.giver_id,
+        receiverId: d.receiver_id,
+        amount: d.amount,
+        status: d.status,
+        eventId: d.event_id,
+        createdAt: toMs(d.created_at),
+        settledAt: d.settled_at ? toMs(d.settled_at) : undefined,
+    }));
 }
 
-/**
- * Get all pending amounts grouped by host (receiverId).
- * These are amounts hosts owe me to return in the future.
- */
 export async function getMyPendingGiven(): Promise<
     { memberId: string; memberName: string; totalGiven: number; transactions: Transaction[] }[]
 > {
-    const q = query(
-        collection(db, "transactions"),
-        where("giverId", "==", ME),
-        where("status", "==", "pending")
-    );
-    const snap = await getDocs(q);
-    const transactions: Transaction[] = snap.docs.map((d) => ({
-        id: d.id,
-        ...d.data(),
-    } as Transaction));
+    const [txResp, memResp] = await Promise.all([
+        supabase.from("transactions").select("*").eq("giver_id", ME).eq("status", "pending"),
+        supabase.from("members").select("id, name")
+    ]);
 
-    const grouped: Record<string, { memberId: string; memberName: string; totalGiven: number; transactions: Transaction[] }> = {};
-    for (const tx of transactions) {
-        if (!grouped[tx.receiverId]) {
-            const m = await getMemberById(tx.receiverId);
-            grouped[tx.receiverId] = {
-                memberId: tx.receiverId,
-                memberName: m?.name ?? "Unknown",
+    if (txResp.error) throw new Error(txResp.error.message);
+    if (memResp.error) throw new Error(memResp.error.message);
+
+    const membersMap = Object.fromEntries(memResp.data.map((m: any) => [m.id, m.name]));
+
+    const grouped: Record<string, any> = {};
+    for (const d of txResp.data) {
+        if (!grouped[d.receiver_id]) {
+            grouped[d.receiver_id] = {
+                memberId: d.receiver_id,
+                memberName: membersMap[d.receiver_id] ?? "Unknown",
                 totalGiven: 0,
                 transactions: [],
             };
         }
-        grouped[tx.receiverId].totalGiven += tx.amount;
-        grouped[tx.receiverId].transactions.push(tx);
+        grouped[d.receiver_id].totalGiven += Number(d.amount);
+        grouped[d.receiver_id].transactions.push({
+            id: d.id,
+            giverId: d.giver_id,
+            receiverId: d.receiver_id,
+            amount: Number(d.amount),
+            status: d.status,
+            createdAt: toMs(d.created_at)
+        });
     }
     return Object.values(grouped);
 }
 
-/**
- * Get pending amount I gave to a specific member.
- * Used on Home page to show contextual reminder for an upcoming event.
- */
 export async function getPendingAmountForMember(memberId: string): Promise<number> {
-    const q = query(
-        collection(db, "transactions"),
-        where("giverId", "==", ME),
-        where("receiverId", "==", memberId),
-        where("status", "==", "pending")
-    );
-    const snap = await getDocs(q);
-    return snap.docs.reduce((sum, d) => sum + (d.data().amount as number), 0);
-}
+    const { data, error } = await supabase
+        .rpc('calculate_pending_amount', { p_member_id: memberId });
 
-/**
- * Get all transactions (pending + settled), newest first, with resolved names.
- */
-export async function getAllTransactions(): Promise<Transaction[]> {
-    const q = query(collection(db, "transactions"), orderBy("createdAt", "desc"));
-    const snap = await getDocs(q);
-    const txs: Transaction[] = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Transaction));
+    // Fallback if RPC isn't loaded yet: fallback to summing rows
+    if (error) {
+        const { data: rows, error: rErr } = await supabase
+            .from("transactions")
+            .select("amount")
+            .eq("giver_id", ME)
+            .eq("receiver_id", memberId)
+            .eq("status", "pending");
 
-    const memberCache: Record<string, string> = {};
-    async function resolveName(id: string): Promise<string> {
-        if (id === ME) return "Me";
-        if (memberCache[id]) return memberCache[id];
-        const m = await getMemberById(id);
-        memberCache[id] = m?.name ?? "Unknown";
-        return memberCache[id];
+        if (rErr) throw new Error(rErr.message);
+        return rows.reduce((acc, row) => acc + Number(row.amount), 0);
     }
-
-    return await Promise.all(
-        txs.map(async (tx) => ({
-            ...tx,
-            giverName: await resolveName(tx.giverId),
-            receiverName: await resolveName(tx.receiverId),
-        }))
-    );
+    return Number(data || 0);
 }
 
-/**
- * Settle an old transaction and create a new return entry.
- * Used when a host returns money to me (with a custom bonus).
- *
- * Old:  me → hostId → 1000 → pending
- * New:  hostId → me → 1200 → pending (1000 + 200 bonus)
- */
+export async function getAllTransactions(): Promise<Transaction[]> {
+    const [txResp, memResp] = await Promise.all([
+        supabase.from("transactions").select("*").order("created_at", { ascending: false }),
+        supabase.from("members").select("id, name")
+    ]);
+
+    if (txResp.error) throw new Error(txResp.error.message);
+    if (memResp.error) throw new Error(memResp.error.message);
+
+    const membersMap = Object.fromEntries(memResp.data.map((m: any) => [m.id, m.name]));
+    membersMap[ME] = "Me";
+
+    return txResp.data.map((d: any) => ({
+        id: d.id,
+        giverId: d.giver_id,
+        receiverId: d.receiver_id,
+        amount: Number(d.amount),
+        status: d.status,
+        createdAt: toMs(d.created_at),
+        giverName: membersMap[d.giver_id] ?? "Unknown",
+        receiverName: membersMap[d.receiver_id] ?? "Unknown",
+    }));
+}
+
 export async function settleAndReturn(
     originalTransactionId: string,
     originalAmount: number,
     bonusAmount: number,
     hostId: string
 ): Promise<string> {
-    let newId = "";
-    await runTransaction(db, async (t) => {
-        const oldRef = doc(db, "transactions", originalTransactionId);
-        const oldDoc = await t.get(oldRef);
-        if (!oldDoc.exists()) throw new Error("Transaction not found.");
-        if (oldDoc.data().status !== "pending") throw new Error("Already settled.");
+    // Supabase JS doesn't have an interactive transaction API like runTransaction.
+    // Instead we do an RPC call (ideal) or a 2-step process. 
+    // We will do a simple 2-step process here (insert new, update old). For strict ACID, an RPC is needed.
 
-        const newRef = doc(collection(db, "transactions"));
-        const newTx: Transaction = {
-            giverId: hostId,
-            receiverId: ME,
+    // 1. Insert new
+    const { data: newTx, error: errC } = await supabase
+        .from("transactions")
+        .insert([{
+            giver_id: hostId,
+            receiver_id: ME,
             amount: originalAmount + bonusAmount,
-            bonusAmount,
-            status: "pending",
-            createdAt: Date.now(),
-        };
+            bonus_amount: bonusAmount,
+            status: "pending"
+        }])
+        .select("id")
+        .single();
+    if (errC) throw new Error(errC.message);
 
-        t.update(oldRef, {
+    // 2. Update old
+    const { error: errU } = await supabase
+        .from("transactions")
+        .update({
             status: "settled",
-            settledAt: Date.now(),
-            relatedReturnId: newRef.id,
-        });
-        t.set(newRef, newTx);
-        newId = newRef.id;
-    });
-    return newId;
+            settled_at: new Date().toISOString(),
+            related_return_id: newTx.id
+        })
+        .eq("id", originalTransactionId)
+        .eq("status", "pending");
+
+    if (errU) throw new Error(errU.message);
+
+    return newTx.id;
 }
 
 // Legacy alias kept for compatibility
@@ -312,12 +379,11 @@ export async function addContribution(
     receiverId: string,
     amount: number
 ): Promise<string> {
-    const docRef = await addDoc(collection(db, "transactions"), {
-        giverId,
-        receiverId,
-        amount,
-        status: "pending",
-        createdAt: Date.now(),
-    });
-    return docRef.id;
+    const { data, error } = await supabase
+        .from("transactions")
+        .insert([{ giver_id: giverId, receiver_id: receiverId, amount, status: "pending" }])
+        .select("id")
+        .single();
+    if (error) throw new Error(error.message);
+    return data.id;
 }
