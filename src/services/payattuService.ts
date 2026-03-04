@@ -78,13 +78,13 @@ export async function getAllMembers(): Promise<Member[]> {
 
     if (error) throw new Error(error.message);
 
-    return data.map((d: any) => ({
-        id: d.id,
-        name: d.name,
-        nameMl: d.name_ml,
-        phone: d.phone,
-        address: d.address,
-        createdAt: toMs(d.created_at),
+    return data.map((d: Record<string, unknown>) => ({
+        id: d.id as string,
+        name: d.name as string,
+        nameMl: d.name_ml as string | undefined,
+        phone: d.phone as string | undefined,
+        address: d.address as string | undefined,
+        createdAt: toMs(d.created_at as string),
     }));
 }
 
@@ -152,15 +152,18 @@ export async function getUpcomingEvents(): Promise<Event[]> {
 
     if (error) throw new Error(error.message);
 
-    return data.map((d: any) => ({
-        id: d.id,
-        hostId: d.host_id,
-        dateTime: toMs(d.date_time),
-        place: d.place,
-        note: d.note,
-        createdAt: toMs(d.created_at),
-        hostName: d.members?.name ?? "Unknown",
-    }));
+    return data.map((d: Record<string, unknown>) => {
+        const membersData = d.members as { name: string } | null;
+        return {
+            id: d.id as string,
+            hostId: d.host_id as string,
+            dateTime: toMs(d.date_time as string),
+            place: d.place as string,
+            note: d.note as string | undefined,
+            createdAt: toMs(d.created_at as string),
+            hostName: membersData?.name ?? "Unknown",
+        };
+    });
 }
 
 export async function getAllEvents(): Promise<Event[]> {
@@ -174,15 +177,18 @@ export async function getAllEvents(): Promise<Event[]> {
 
     if (error) throw new Error(error.message);
 
-    return data.map((d: any) => ({
-        id: d.id,
-        hostId: d.host_id,
-        dateTime: toMs(d.date_time),
-        place: d.place,
-        note: d.note,
-        createdAt: toMs(d.created_at),
-        hostName: d.members?.name ?? "Unknown",
-    }));
+    return data.map((d: Record<string, unknown>) => {
+        const membersData = d.members as { name: string } | null;
+        return {
+            id: d.id as string,
+            hostId: d.host_id as string,
+            dateTime: toMs(d.date_time as string),
+            place: d.place as string,
+            note: d.note as string | undefined,
+            createdAt: toMs(d.created_at as string),
+            hostName: membersData?.name ?? "Unknown",
+        };
+    });
 }
 
 // ─────────────────────────────────────────────
@@ -242,15 +248,15 @@ export async function getTransactionsForMember(memberId: string): Promise<Transa
 
     if (error) throw new Error(error.message);
 
-    return data.map((d: any) => ({
-        id: d.id,
-        giverId: d.giver_id,
-        receiverId: d.receiver_id,
-        amount: d.amount,
-        status: d.status,
-        eventId: d.event_id,
-        createdAt: toMs(d.created_at),
-        settledAt: d.settled_at ? toMs(d.settled_at) : undefined,
+    return data.map((d: Record<string, unknown>) => ({
+        id: d.id as string,
+        giverId: d.giver_id as string,
+        receiverId: d.receiver_id as string,
+        amount: Number(d.amount),
+        status: d.status as "pending" | "settled",
+        eventId: d.event_id as string | undefined,
+        createdAt: toMs(d.created_at as string),
+        settledAt: d.settled_at ? toMs(d.settled_at as string) : undefined,
     }));
 }
 
@@ -265,26 +271,27 @@ export async function getMyPendingGiven(): Promise<
     if (txResp.error) throw new Error(txResp.error.message);
     if (memResp.error) throw new Error(memResp.error.message);
 
-    const membersMap = Object.fromEntries(memResp.data.map((m: any) => [m.id, m.name]));
+    const membersMap = Object.fromEntries(memResp.data.map((m: { id: string, name: string }) => [m.id, m.name]));
 
-    const grouped: Record<string, any> = {};
+    const grouped: Record<string, { memberId: string; memberName: string; totalGiven: number; transactions: Transaction[] }> = {};
     for (const d of txResp.data) {
-        if (!grouped[d.receiver_id]) {
-            grouped[d.receiver_id] = {
-                memberId: d.receiver_id,
-                memberName: membersMap[d.receiver_id] ?? "Unknown",
+        const receiverId = d.receiver_id as string;
+        if (!grouped[receiverId]) {
+            grouped[receiverId] = {
+                memberId: receiverId,
+                memberName: membersMap[receiverId] ?? "Unknown",
                 totalGiven: 0,
                 transactions: [],
             };
         }
-        grouped[d.receiver_id].totalGiven += Number(d.amount);
-        grouped[d.receiver_id].transactions.push({
-            id: d.id,
-            giverId: d.giver_id,
-            receiverId: d.receiver_id,
+        grouped[receiverId].totalGiven += Number(d.amount);
+        grouped[receiverId].transactions.push({
+            id: d.id as string,
+            giverId: d.giver_id as string,
+            receiverId: receiverId,
             amount: Number(d.amount),
-            status: d.status,
-            createdAt: toMs(d.created_at)
+            status: d.status as "pending" | "settled",
+            createdAt: toMs(d.created_at as string)
         });
     }
     return Object.values(grouped);
@@ -318,19 +325,23 @@ export async function getAllTransactions(): Promise<Transaction[]> {
     if (txResp.error) throw new Error(txResp.error.message);
     if (memResp.error) throw new Error(memResp.error.message);
 
-    const membersMap = Object.fromEntries(memResp.data.map((m: any) => [m.id, m.name]));
+    const membersMap = Object.fromEntries(memResp.data.map((m: { id: string, name: string }) => [m.id, m.name]));
     membersMap[ME] = "Me";
 
-    return txResp.data.map((d: any) => ({
-        id: d.id,
-        giverId: d.giver_id,
-        receiverId: d.receiver_id,
-        amount: Number(d.amount),
-        status: d.status,
-        createdAt: toMs(d.created_at),
-        giverName: membersMap[d.giver_id] ?? "Unknown",
-        receiverName: membersMap[d.receiver_id] ?? "Unknown",
-    }));
+    return txResp.data.map((d: Record<string, unknown>) => {
+        const giverId = d.giver_id as string;
+        const receiverId = d.receiver_id as string;
+        return {
+            id: d.id as string,
+            giverId: giverId,
+            receiverId: receiverId,
+            amount: Number(d.amount),
+            status: d.status as "pending" | "settled",
+            createdAt: toMs(d.created_at as string),
+            giverName: membersMap[giverId] ?? "Unknown",
+            receiverName: membersMap[receiverId] ?? "Unknown",
+        };
+    });
 }
 
 export async function settleAndReturn(
