@@ -1,0 +1,54 @@
+
+> payattu-book@1.0.0 build
+> next build
+
+  ▲ Next.js 14.2.35
+  - Environments: .env.local
+
+   Creating an optimized production build ...
+ ✓ (pwa) Compiling for server...
+ ✓ (pwa) Compiling for server...
+ ✓ (pwa) Compiling for client (static)...
+ ○ (pwa) Service worker: C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\public\sw.js
+ ○ (pwa)   URL: /sw.js
+ ○ (pwa)   Scope: /
+ ○ (pwa) This app will fallback to these precached routes when fetching from the cache and the network fails:
+ ○ (pwa)   Documents (pages): /~offline
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/16) ...
+   Generating static pages (4/16) 
+   Generating static pages (8/16) 
+   Generating static pages (12/16) 
+ ✓ Generating static pages (16/16)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                              Size     First Load JS
+┌ ○ /                                    3.37 kB         161 kB
+├ ○ /_not-found                          873 B          90.5 kB
+├ ○ /~offline                            1.11 kB        90.7 kB
+├ ○ /about                               1.96 kB         100 kB
+├ ○ /add-event                           3.33 kB         156 kB
+├ ○ /add-member                          2.36 kB         155 kB
+├ ○ /analytics                           2.95 kB         155 kB
+├ ƒ /auth/callback                       0 B                0 B
+├ ○ /history                             1.78 kB         154 kB
+├ ○ /login                               2.02 kB         148 kB
+├ ○ /mark-payment                        2.23 kB         154 kB
+├ ○ /members                             1.59 kB         154 kB
+├ ƒ /members/[id]                        2.18 kB         154 kB
+├ ○ /receive-payment                     2.7 kB          155 kB
+└ ○ /settings                            3.74 kB         159 kB
++ First Load JS shared by all            89.6 kB
+  ├ chunks/997-6b92ff34242c8172.js       33.9 kB
+  ├ chunks/fd9d1056-15be15fc7416f68f.js  53.6 kB
+  └ other shared chunks (total)          2.03 kB
+
+
+ƒ Middleware                             74.8 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

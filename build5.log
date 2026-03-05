@@ -1,0 +1,176 @@
+
+> payattu-book@1.0.0 build
+> next build
+
+  ▲ Next.js 14.2.35
+  - Environments: .env.local
+
+   Creating an optimized production build ...
+ ✓ (pwa) Compiling for server...
+ ✓ (pwa) Compiling for server...
+ ✓ (pwa) Compiling for client (static)...
+ ○ (pwa) Service worker: C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\public\sw.js
+ ○ (pwa)   URL: /sw.js
+ ○ (pwa)   Scope: /
+ ○ (pwa) This app will fallback to these precached routes when fetching from the cache and the network fails:
+ ○ (pwa)   Documents (pages): /~offline
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/16) ...
+   Generating static pages (4/16) 
+   Generating static pages (8/16) 
+Error: Event handlers cannot be passed to Client Component props.
+  {onClick: function onClick, className: ..., children: ...}
+            ^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at e_ (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:140589)
+    at Object.toJSON (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:135777)
+    at stringify (<anonymous>)
+    at eE (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:142242)
+    at eT (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:142721)
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_hooks:91:14)
+    at Timeout._onTimeout (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:150805)
+    at listOnTimeout (node:internal/timers:594:17)
+    at process.processTimers (node:internal/timers:529:7) {
+  digest: '1371278179'
+}
+Error: Event handlers cannot be passed to Client Component props.
+  {onClick: function onClick, className: ..., children: ...}
+            ^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at e_ (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:140589)
+    at Object.toJSON (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:135777)
+    at stringify (<anonymous>)
+    at eE (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:142242)
+    at eT (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:142721)
+    at Timeout._onTimeout (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:135497)
+    at listOnTimeout (node:internal/timers:594:17)
+    at process.processTimers (node:internal/timers:529:7) {
+  digest: '4118786567'
+}
+Error: Event handlers cannot be passed to Client Component props.
+  {onClick: function onClick, className: ..., children: ...}
+            ^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at e_ (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:140589)
+    at Object.toJSON (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:135777)
+    at stringify (<anonymous>)
+    at eE (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:142242)
+    at eT (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:142721)
+    at Timeout._onTimeout (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:135497)
+    at listOnTimeout (node:internal/timers:594:17)
+    at process.processTimers (node:internal/timers:529:7) {
+  digest: '4118786567'
+}
+   Generating static pages (12/16) 
+ ⚠ Sending SIGTERM signal to Next.js build worker due to timeout of 60 seconds. Subsequent errors may be a result of the worker exiting.
+ ⚠ Restarted static page generation for /~offline because it took more than 60 seconds
+ ⚠ See more info here https://nextjs.org/docs/messages/static-page-generation-timeout
+Error: Event handlers cannot be passed to Client Component props.
+  {onClick: function onClick, className: ..., children: ...}
+            ^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at e_ (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:140589)
+    at Object.toJSON (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:135777)
+    at stringify (<anonymous>)
+    at eE (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:142242)
+    at eT (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:142721)
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_hooks:91:14)
+    at Timeout._onTimeout (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:150805)
+    at listOnTimeout (node:internal/timers:594:17)
+    at process.processTimers (node:internal/timers:529:7) {
+  digest: '1371278179'
+}
+Error: Event handlers cannot be passed to Client Component props.
+  {onClick: function onClick, className: ..., children: ...}
+            ^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at e_ (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:140589)
+    at Object.toJSON (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:135777)
+    at stringify (<anonymous>)
+    at eE (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:142242)
+    at eT (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:142721)
+    at Timeout._onTimeout (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:135497)
+    at listOnTimeout (node:internal/timers:594:17)
+    at process.processTimers (node:internal/timers:529:7) {
+  digest: '4118786567'
+}
+Error: Event handlers cannot be passed to Client Component props.
+  {onClick: function onClick, className: ..., children: ...}
+            ^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at e_ (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:140589)
+    at Object.toJSON (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:135777)
+    at stringify (<anonymous>)
+    at eE (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:142242)
+    at eT (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:142721)
+    at Timeout._onTimeout (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:135497)
+    at listOnTimeout (node:internal/timers:594:17)
+    at process.processTimers (node:internal/timers:529:7) {
+  digest: '4118786567'
+}
+ ⚠ Sending SIGTERM signal to Next.js build worker due to timeout of 60 seconds. Subsequent errors may be a result of the worker exiting.
+ ⚠ Restarted static page generation for /~offline because it took more than 60 seconds
+Error: Event handlers cannot be passed to Client Component props.
+  {onClick: function onClick, className: ..., children: ...}
+            ^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at e_ (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:140589)
+    at Object.toJSON (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:135777)
+    at stringify (<anonymous>)
+    at eE (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:142242)
+    at eT (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:142721)
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_hooks:91:14)
+    at Timeout._onTimeout (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:150805)
+    at listOnTimeout (node:internal/timers:594:17)
+    at process.processTimers (node:internal/timers:529:7) {
+  digest: '1371278179'
+}
+Error: Event handlers cannot be passed to Client Component props.
+  {onClick: function onClick, className: ..., children: ...}
+            ^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at e_ (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:140589)
+    at Object.toJSON (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:135777)
+    at stringify (<anonymous>)
+    at eE (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:142242)
+    at eT (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:142721)
+    at Timeout._onTimeout (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:135497)
+    at listOnTimeout (node:internal/timers:594:17)
+    at process.processTimers (node:internal/timers:529:7) {
+  digest: '4118786567'
+}
+Error: Event handlers cannot be passed to Client Component props.
+  {onClick: function onClick, className: ..., children: ...}
+            ^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at e_ (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:140589)
+    at Object.toJSON (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:135777)
+    at stringify (<anonymous>)
+    at eE (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:142242)
+    at eT (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:142721)
+    at Timeout._onTimeout (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:135497)
+    at listOnTimeout (node:internal/timers:594:17)
+    at process.processTimers (node:internal/timers:529:7) {
+  digest: '4118786567'
+}
+ ⚠ Sending SIGTERM signal to Next.js build worker due to timeout of 60 seconds. Subsequent errors may be a result of the worker exiting.
+
+> Build error occurred
+Error: Static page generation for /~offline is still timing out after 3 attempts. See more info here https://nextjs.org/docs/messages/static-page-generation-timeout
+    at onRestart (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\build\index.js:292:27)
+    at C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\lib\worker.js:104:40
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\export\index.js:450:20
+    at async Span.traceAsyncFn (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\trace\trace.js:154:20)
+    at async C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\export\index.js:448:24
+    at async Promise.all (index 5)
+    at async exportAppImpl (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\export\index.js:440:21)
+    at async C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\export\index.js:623:16
+    at async Span.traceAsyncFn (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\trace\trace.js:154:20)
+    at async C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\build\index.js:1699:42
+    at async Span.traceAsyncFn (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\trace\trace.js:154:20)
+    at async C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\build\index.js:1546:17
+    at async Span.traceAsyncFn (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\trace\trace.js:154:20)
+    at async build (C:\Users\HP OMEN\Music\Programmer\PayattuBook-wa\node_modules\next\dist\build\index.js:368:9)

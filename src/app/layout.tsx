@@ -1,13 +1,18 @@
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
+import InstallPrompt from '@/components/InstallPrompt';
 
 export const metadata: Metadata = {
     title: 'Payattu Book',
     description: 'Mobile-first application for managing Payattu',
+    manifest: '/manifest.json',
     appleWebApp: {
         title: 'Payattu Book',
         capable: true,
         statusBarStyle: 'black-translucent',
+    },
+    icons: {
+        apple: '/apple-touch-icon.png',
     },
 };
 
@@ -31,6 +36,7 @@ export default function RootLayout({
                 <main className="mobile-wrapper">
                     {children}
                 </main>
+                <InstallPrompt />
             </body>
         </html>
     );
