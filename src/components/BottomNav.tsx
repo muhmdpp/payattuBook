@@ -15,13 +15,13 @@ export default function BottomNav() {
                     <Home size={24} />
                     <span className="nav-label">Home</span>
                 </Link>
-                <Link href="/members" className={`nav-item ${pathname === '/members' ? 'active' : ''}`}>
+                <Link href="/members" id="tour-nav-members" className={`nav-item ${pathname === '/members' ? 'active' : ''}`}>
                     <Users size={24} />
                     <span className="nav-label">Members</span>
                 </Link>
 
                 {/* FAB center item */}
-                <Link href="/seed" className="nav-item-fab-wrapper">
+                <Link href="/seed" id="tour-fab" className="nav-item-fab-wrapper">
                     <button className="fab-button" aria-label="Quick Add">
                         <Database size={28} color="white" />
                     </button>

@@ -2,9 +2,11 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { createBrowserClient } from '@supabase/ssr';
 import { Bell, IndianRupee, CalendarPlus, History, CalendarDays, ArrowLeftRight, CalendarCheck, ArrowDownToLine } from 'lucide-react';
 import BottomNav from '@/components/BottomNav';
+import Walkthrough from '@/components/Walkthrough';
 import { getUpcomingEvents, getAllTransactions, getPendingAmountForMember, getPaymentForEvent, Event, Transaction, ME } from '@/services/payattuService';
 import './Home.css';
 
@@ -36,7 +38,14 @@ export default function Home() {
     );
     const [avatarUrl, setAvatarUrl] = useState('');
     const [loading, setLoading] = useState(true);
+    const router = useRouter();
     const now = Date.now();
+
+    useEffect(() => {
+        if (!localStorage.getItem('payattu_onboarding_completed')) {
+            router.replace('/onboarding');
+        }
+    }, [router]);
 
     const load = useCallback(async () => {
         setLoading(true);
@@ -75,6 +84,7 @@ export default function Home() {
 
     return (
         <div className="home-container">
+            <Walkthrough />
             <div className="home-header-section">
                 <header className="home-top-bar">
                     <Link href="/settings" className="avatar-placeholder" aria-label="Go to settings">
@@ -92,7 +102,7 @@ export default function Home() {
                     </button>
                 </header>
 
-                <div className="action-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+                <div id="tour-action-grid" className="action-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
                     <Link href="/mark-payment" className="action-item">
                         <div className="action-icon-wrapper">
                             <div className="diamond-frame"><IndianRupee size={24} color="white" /></div>
