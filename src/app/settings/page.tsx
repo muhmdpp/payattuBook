@@ -5,7 +5,7 @@ import { createBrowserClient } from '@supabase/ssr';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import BottomNav from '@/components/BottomNav';
-import { User, Bell, Bug, MessageSquare, Info, ChevronRight, LogOut, Check } from 'lucide-react';
+import { User, Bell, Bug, MessageSquare, Info, ChevronRight, LogOut, Check, Upload } from 'lucide-react';
 import './Settings.css';
 
 const USERNAME_KEY = 'payattu_username';
@@ -132,6 +132,21 @@ export default function SettingsPage() {
                                 </div>
                                 <ChevronRight size={18} color="#9CA3AF" />
                             </button>
+
+                            <div className="settings-divider" />
+
+                            <Link href="/settings/import" className="settings-list-item">
+                                <div className="settings-item-left">
+                                    <div className="settings-icon-bg" style={{ backgroundColor: '#DCFCE7', color: '#16A34A' }}>
+                                        <Upload size={18} />
+                                    </div>
+                                    <div style={{ textAlign: 'left' }}>
+                                        <span style={{ display: 'block' }}>Import Data (CSV)</span>
+                                        <span style={{ fontSize: '0.72rem', color: '#9CA3AF' }}>Bulk add members from Excel</span>
+                                    </div>
+                                </div>
+                                <ChevronRight size={18} color="#9CA3AF" />
+                            </Link>
 
                             <div className="settings-divider" />
 

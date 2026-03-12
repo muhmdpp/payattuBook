@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Users, FileSearch, BarChart2, Settings } from 'lucide-react';
+import { Home, Users, BarChart2, Settings, Database } from 'lucide-react';
 import './BottomNav.css';
 
 export default function BottomNav() {
@@ -21,12 +21,11 @@ export default function BottomNav() {
                 </Link>
 
                 {/* FAB center item */}
-                <div className="nav-item-fab-wrapper">
-                    <button className="fab-button" aria-label="Quick Action">
-                        <FileSearch size={32} color="white" />
+                <Link href="/seed" className="nav-item-fab-wrapper">
+                    <button className="fab-button" aria-label="Quick Add">
+                        <Database size={28} color="white" />
                     </button>
-                    {/* <span className="nav-label fab-label">Search</span> */}
-                </div>
+                </Link>
 
                 <Link href="/analytics" className={`nav-item ${pathname === '/analytics' ? 'active' : ''}`}>
                     <BarChart2 size={24} />

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "54716c32-70cc-4953-9844-02c0add8ea2f",
+    "giver_id": "ba22c102-cc18-4096-bed1-32e7488b497a",
+    "receiver_id": "me",
+    "amount": 8000,
+    "status": "pending",
+    "event_id": null,
+    "bonus_amount": 3000,
+    "related_return_id": null,
+    "created_at": "2026-03-12T18:45:53.713506+00:00",
+    "settled_at": null
+  },
+  {
+    "id": "0d1fba64-cdf0-421d-ada9-b52a21a7ebe7",
+    "giver_id": "me",
+    "receiver_id": "ba22c102-cc18-4096-bed1-32e7488b497a",
+    "amount": 5000,
+    "status": "settled",
+    "event_id": "bf56deb8-4b5f-4fbe-b95b-2315dff7ab06",
+    "bonus_amount": null,
+    "related_return_id": "54716c32-70cc-4953-9844-02c0add8ea2f",
+    "created_at": "2026-03-12T18:45:27.166469+00:00",
+    "settled_at": "2026-03-12T18:45:53.645+00:00"
+  }
+]

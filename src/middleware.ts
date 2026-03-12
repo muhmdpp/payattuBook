@@ -3,21 +3,30 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export async function middleware(req: NextRequest) {
-    const res = NextResponse.next();
+    let res = NextResponse.next({
+        request: {
+            headers: req.headers,
+        },
+    });
 
     const supabase = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
         {
             cookies: {
-                get(name: string) {
-                    return req.cookies.get(name)?.value;
+                getAll() {
+                    return req.cookies.getAll();
                 },
-                set(name: string, value: string, options: CookieOptions) {
-                    res.cookies.set({ name, value, ...options });
-                },
-                remove(name: string, options: CookieOptions) {
-                    res.cookies.set({ name, value: '', ...options });
+                setAll(cookiesToSet) {
+                    cookiesToSet.forEach(({ name, value }) => req.cookies.set(name, value));
+                    res = NextResponse.next({
+                        request: {
+                            headers: req.headers,
+                        },
+                    });
+                    cookiesToSet.forEach(({ name, value, options }) =>
+                        res.cookies.set(name, value, options)
+                    );
                 },
             },
         }
@@ -29,11 +38,23 @@ export async function middleware(req: NextRequest) {
         req.nextUrl.pathname.startsWith('/auth');
 
     if (!session && !isAuthRoute) {
-        return NextResponse.redirect(new URL('/login', req.url));
+        const redirectUrl = req.nextUrl.clone();
+        redirectUrl.pathname = '/login';
+        const redirectResponse = NextResponse.redirect(redirectUrl);
+        res.cookies.getAll().forEach(cookie => {
+            redirectResponse.cookies.set({ ...cookie });
+        });
+        return redirectResponse;
     }
 
     if (session && req.nextUrl.pathname === '/login') {
-        return NextResponse.redirect(new URL('/', req.url));
+        const redirectUrl = req.nextUrl.clone();
+        redirectUrl.pathname = '/';
+        const redirectResponse = NextResponse.redirect(redirectUrl);
+        res.cookies.getAll().forEach(cookie => {
+            redirectResponse.cookies.set({ ...cookie });
+        });
+        return redirectResponse;
     }
 
     return res;

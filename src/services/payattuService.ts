@@ -372,6 +372,7 @@ export async function getAllTransactions(): Promise<Transaction[]> {
             amount: Number(d.amount),
             status: d.status as "pending" | "settled",
             createdAt: toMs(d.created_at as string),
+            bonusAmount: d.bonus_amount ? Number(d.bonus_amount) : undefined,
             giverName: membersMap[giverId] ?? "Unknown",
             receiverName: membersMap[receiverId] ?? "Unknown",
         };
@@ -500,4 +501,60 @@ export async function settleAllAndReturn(
     }
 
     return newTx.id;
+}
+
+/**
+ * Migration Helper: Seeds a member from a physical book.
+ * If Nasar paid 8000 and balance is 5000, it means he owed 3000 from the past.
+ * We create a "settled" transaction for the 3000 he owed, and a new "pending" 5000 that we owe him.
+ */
+export async function seedMemberPayattu(
+    name: string,
+    nameMl: string | undefined,
+    paidAmount: number,
+    balanceAmount: number,
+    eventId?: string
+): Promise<string> {
+    // 1. Create the member
+    const { data: member, error: memberErr } = await supabase
+        .from("members")
+        .insert([{ name, name_ml: nameMl }])
+        .select("id")
+        .single();
+
+    if (memberErr) throw new Error(`Member creation failed: ${memberErr.message}`);
+    const memberId = member.id;
+
+    const oldDebt = paidAmount - balanceAmount;
+
+    // 2. If there was an old debt, record it as a past settled transaction
+    if (oldDebt > 0) {
+        // We create a fake "past" transaction where ME gave member the oldDebt.
+        // Then we immediately mark it as settled today.
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+
+        await supabase.from("transactions").insert([{
+            giver_id: ME,
+            receiver_id: memberId,
+            amount: oldDebt,
+            status: "settled",
+            created_at: yesterday.toISOString(),
+            settled_at: new Date().toISOString(),
+            event_id: eventId || null
+        }]);
+    }
+
+    // 3. Record the new pending balance that ME owes the member
+    if (balanceAmount > 0) {
+        await supabase.from("transactions").insert([{
+            giver_id: memberId,
+            receiver_id: ME,
+            amount: balanceAmount,
+            status: "pending",
+            event_id: eventId || null
+        }]);
+    }
+
+    return memberId;
 }

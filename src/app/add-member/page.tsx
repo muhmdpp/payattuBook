@@ -5,6 +5,8 @@ import Header from '@/components/Header';
 import BottomNav from '@/components/BottomNav';
 import { UserPlus, BookOpen, Check, Loader, Pencil, X } from 'lucide-react';
 import { addMember, updateMember, getAllMembers, Member } from '@/services/payattuService';
+import { transliterateToMalayalam } from '@/lib/transliterate';
+import { getAvatarColor, getInitials } from '@/lib/colors';
 import './AddMember.css';
 
 export default function AddMember() {
@@ -12,6 +14,7 @@ export default function AddMember() {
     const [nameMl, setNameMl] = useState('');
     const [phone, setPhone] = useState('');
     const [address, setAddress] = useState('');
+    const [hasManuallyEditedMl, setHasManuallyEditedMl] = useState(false);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState('');
@@ -39,6 +42,26 @@ export default function AddMember() {
 
     useEffect(() => { loadMembers(); }, [loadMembers]);
 
+    // ── Auto-transliteration ───────────────────────────────────────────────────
+    useEffect(() => {
+        const trimmedName = name.trim();
+        if (!trimmedName) {
+            if (!hasManuallyEditedMl) setNameMl('');
+            return;
+        }
+
+        if (hasManuallyEditedMl) return;
+
+        const timer = setTimeout(async () => {
+            const mlText = await transliterateToMalayalam(trimmedName);
+            if (mlText && !hasManuallyEditedMl) {
+                setNameMl(mlText);
+            }
+        }, 600); // 600ms debounce
+
+        return () => clearTimeout(timer);
+    }, [name, hasManuallyEditedMl]);
+
     // ── Add submit ─────────────────────────────────────────────────────────────
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -46,7 +69,7 @@ export default function AddMember() {
         setLoading(true); setError('');
         try {
             await addMember({ name: name.trim(), nameMl: nameMl.trim(), phone: phone.trim(), address: address.trim() });
-            setName(''); setNameMl(''); setPhone(''); setAddress('');
+            setName(''); setNameMl(''); setPhone(''); setAddress(''); setHasManuallyEditedMl(false);
             setSuccess(true);
             setTimeout(() => setSuccess(false), 2000);
             await loadMembers();
@@ -109,7 +132,10 @@ export default function AddMember() {
                             <input
                                 type="text" placeholder="Name in മലയാളം"
                                 className="input-field" value={nameMl}
-                                onChange={e => setNameMl(e.target.value)}
+                                onChange={e => {
+                                    setNameMl(e.target.value);
+                                    setHasManuallyEditedMl(true);
+                                }}
                             />
                             <input
                                 type="tel" placeholder="Mobile Number"
@@ -143,7 +169,21 @@ export default function AddMember() {
                         <div className="member-list-items">
                             {members.map(m => (
                                 <div key={m.id} className="member-list-card">
-                                    <div className="avatar-circle small" />
+                                    <div
+                                        className="avatar-circle small"
+                                        style={{
+                                            backgroundColor: getAvatarColor(m.name),
+                                            color: '#ffffff',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontWeight: 600,
+                                            fontSize: '0.9rem',
+                                            textTransform: 'uppercase'
+                                        }}
+                                    >
+                                        {getInitials(m.name)}
+                                    </div>
                                     <div className="member-info">
                                         <h3>{m.name}</h3>
                                         {m.nameMl && <p className="name-ml">{m.nameMl}</p>}

@@ -1,15 +1,11 @@
 "use client";
 
 import { useState } from 'react';
-import { createBrowserClient } from '@supabase/ssr';
+import { supabase } from '@/lib/supabase';
 import { IndianRupee, Loader } from 'lucide-react';
 import './Login.css';
 
 export default function LoginPage() {
-    const supabase = createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
     const [loading, setLoading] = useState<'google' | 'facebook' | null>(null);
     const [error, setError] = useState('');
 
