@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { Step } from 'react-joyride';
+import { Step, CallBackProps } from 'react-joyride';
 
 // Dynamically import Joyride to avoid Next.js SSR hydration mismatch with window/document
 const Joyride = dynamic(() => import('react-joyride'), { ssr: false });
@@ -47,7 +47,7 @@ export default function Walkthrough() {
         }
     ];
 
-    const handleJoyrideCallback = (data: any) => {
+    const handleJoyrideCallback = (data: CallBackProps) => {
         const { status } = data;
         const finishedStatuses: string[] = ['finished', 'skipped'];
         if (finishedStatuses.includes(status)) {
