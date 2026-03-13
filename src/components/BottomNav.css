@@ -3,8 +3,6 @@
     bottom: 0;
     width: 100%;
     max-width: var(--app-max-width);
-    height: 100px;
-    /* Increased to account for more padding */
     z-index: 50;
 }
 
@@ -13,15 +11,10 @@
     justify-content: space-around;
     align-items: center;
     background-color: var(--surface);
-    height: 80px;
-    /* Increased height for more padding */
-    padding-bottom: 25px;
-    /* Added more padding at the bottom */
-    position: absolute;
-    bottom: 0;
+    padding-top: 12px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
     width: 100%;
     box-shadow: 0 -4px 6px -1px rgb(0 0 0 / 0.05);
-    /* Soft top shadow */
     border-top-left-radius: var(--radius-lg);
     border-top-right-radius: var(--radius-lg);
 }
@@ -46,11 +39,7 @@
 }
 
 .nav-item-fab-wrapper {
-    position: relative;
-    width: 80px;
-    height: 80px;
     display: flex;
-    padding-bottom: 12px;
     justify-content: center;
     align-items: center;
 }
@@ -74,13 +63,6 @@
 .fab-button:active {
     transform: scale(0.92);
     background-color: #6D28D9;
-    /* Darker purple on tap */
-}
-
-/* Background cutout effect using pseudo-element trick */
-.nav-item-fab-wrapper::before {
-    display: none;
-    /* Hide cutout since button is no longer overlapping significantly above */
 }
 
 .nav-label {
