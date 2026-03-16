@@ -1,7 +1,8 @@
 .home-container {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
+    /* Fill exactly the device height — no more, no less */
+    height: 100dvh;
     position: relative;
     overflow: hidden;
     background-color: var(--surface);
@@ -112,16 +113,28 @@
 }
 
 .home-main-content {
+    /* Take all remaining space after the header */
     flex: 1;
+    min-height: 0;
     background-color: var(--surface);
     border-top-left-radius: var(--radius-lg);
     border-top-right-radius: var(--radius-lg);
     margin-top: -1.5rem;
     /* overlap with purple section */
     padding: 2rem 1.25rem;
+    /* Safe bottom padding so content clears the BottomNav */
+    padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
     z-index: 10;
     position: relative;
     overflow-y: auto;
+    overscroll-behavior: none;
+    /* Hide scrollbar */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.home-main-content::-webkit-scrollbar {
+    display: none;
 }
 
 .list-section {

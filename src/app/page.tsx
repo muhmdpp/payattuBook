@@ -265,7 +265,6 @@ export default function Home() {
                     </>
                 )}
 
-                <div style={{ height: '100px' }} />
             </main>
 
             <BottomNav />
