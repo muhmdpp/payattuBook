@@ -87,7 +87,6 @@ button {
 .mobile-wrapper {
     width: 100%;
     max-width: var(--app-max-width);
-    height: 100vh;
     height: 100dvh;
     background-color: var(--surface);
     position: relative;
@@ -95,12 +94,21 @@ button {
     overflow-x: hidden;
     /* Allow scrolling inside the wrapper only */
     overflow-y: auto;
-    /* Hide vertical scrollbar out of the frame */
+    /* Kill bounce scroll — critical for installed PWA */
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: auto;
+    touch-action: pan-y;
+    /* Hide vertical scrollbar */
     scrollbar-width: none;
     -ms-overflow-style: none;
     box-shadow: var(--shadow-lg);
     display: flex;
     flex-direction: column;
+    /* Account for phone notch (top) and home indicator (bottom) */
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
 }
 
 @media (max-width: 480px) {

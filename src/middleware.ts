@@ -32,12 +32,12 @@ export async function middleware(req: NextRequest) {
         }
     );
 
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { user } } = await supabase.auth.getUser();
 
     const isAuthRoute = req.nextUrl.pathname.startsWith('/login') ||
         req.nextUrl.pathname.startsWith('/auth');
 
-    if (!session && !isAuthRoute) {
+    if (!user && !isAuthRoute) {
         const redirectUrl = req.nextUrl.clone();
         redirectUrl.pathname = '/login';
         const redirectResponse = NextResponse.redirect(redirectUrl);
@@ -47,7 +47,7 @@ export async function middleware(req: NextRequest) {
         return redirectResponse;
     }
 
-    if (session && req.nextUrl.pathname === '/login') {
+    if (user && req.nextUrl.pathname === '/login') {
         const redirectUrl = req.nextUrl.clone();
         redirectUrl.pathname = '/';
         const redirectResponse = NextResponse.redirect(redirectUrl);
