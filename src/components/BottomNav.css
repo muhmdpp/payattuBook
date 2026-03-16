@@ -4,6 +4,8 @@
     width: 100%;
     max-width: var(--app-max-width);
     z-index: 50;
+    /* Fill the home indicator zone with white so no gray bleeds through */
+    background-color: var(--surface);
 }
 
 .bottom-nav {
@@ -12,7 +14,7 @@
     align-items: center;
     background-color: var(--surface);
     padding-top: 12px;
-    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+    padding-bottom: env(safe-area-inset-bottom);
     width: 100%;
     box-shadow: 0 -4px 6px -1px rgb(0 0 0 / 0.05);
     border-top-left-radius: var(--radius-lg);
