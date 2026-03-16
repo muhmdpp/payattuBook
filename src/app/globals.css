@@ -35,6 +35,9 @@
     padding: 0;
     /* Disable highlight color on mobile tap to feel native */
     -webkit-tap-highlight-color: transparent;
+    /* Prevent text selection — feels like a native app */
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 html,
@@ -52,9 +55,9 @@ body {
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    min-height: 100vh;
-    min-height: 100dvh;
-    overflow-y: hidden;
+    /* Use 100dvh (dynamic viewport height) — accounts for iOS Safari address bar */
+    height: 100dvh;
+    overflow: hidden;
     /* Stop body from natively scrolling to prevent top-drag */
 }
 

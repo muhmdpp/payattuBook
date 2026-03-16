@@ -1,28 +1,41 @@
 {
   "name": "Payattu Book",
   "short_name": "Payattu",
-  "description": "Mobile-first application for managing Payattu",
+  "description": "Track your community Payattu contributions",
+  "id": "/",
+  "scope": "/",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
+  "orientation": "portrait",
+  "background_color": "#3B0764",
   "theme_color": "#3B0764",
   "icons": [
     {
       "src": "/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
       "src": "/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
       "src": "/apple-touch-icon.png",
       "sizes": "180x180",
       "type": "image/png"
     }
-  ]
+  ],
+  "screenshots": [
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "PayattuBook Home Screen"
+    }
+  ],
+  "categories": ["finance", "utilities"]
 }

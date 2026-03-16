@@ -4,7 +4,7 @@ import InstallPrompt from '@/components/InstallPrompt';
 
 export const metadata: Metadata = {
     title: 'Payattu Book',
-    description: 'Mobile-first application for managing Payattu',
+    description: 'Track your community Payattu contributions',
     manifest: '/manifest.json',
     appleWebApp: {
         title: 'Payattu Book',
@@ -32,6 +32,18 @@ export default function RootLayout({
 }) {
     return (
         <html lang="en">
+            <head>
+                {/* Capture the install prompt BEFORE React loads — same pattern as elfilming.com */}
+                <script dangerouslySetInnerHTML={{
+                    __html: `
+                        window.__pwaInstallPrompt = null;
+                        window.addEventListener('beforeinstallprompt', function(e) {
+                            e.preventDefault();
+                            window.__pwaInstallPrompt = e;
+                        });
+                    `
+                }} />
+            </head>
             <body>
                 <main className="mobile-wrapper">
                     {children}
@@ -41,3 +53,4 @@ export default function RootLayout({
         </html>
     );
 }
+

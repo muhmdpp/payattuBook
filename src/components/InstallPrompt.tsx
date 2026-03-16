@@ -1,131 +1,266 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { Download, X } from 'lucide-react';
+import React, { useEffect, useState, useCallback } from 'react';
+import { X, Share, ArrowDownToLine } from 'lucide-react';
 
-// Define the beforeinstallprompt event interface
 interface BeforeInstallPromptEvent extends Event {
     prompt: () => Promise<void>;
     userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
 }
 
+type PromptState = 'hidden' | 'banner' | 'ios-instructions';
+
 export default function InstallPrompt() {
     const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-    const [showPrompt, setShowPrompt] = useState(false);
+    const [state, setState] = useState<PromptState>('hidden');
     const [isIOS, setIsIOS] = useState(false);
-    const [showIOSInstructions, setShowIOSInstructions] = useState(false);
+    const [visible, setVisible] = useState(false); // controls CSS transition
 
     useEffect(() => {
-        // Check if user is on iOS
-        const userAgent = window.navigator.userAgent.toLowerCase();
-        const isIOSDevice = /iphone|ipad|ipod/.test(userAgent);
-        setIsIOS(isIOSDevice);
+        const ua = window.navigator.userAgent.toLowerCase();
+        const ios = /iphone|ipad|ipod/.test(ua);
+        setIsIOS(ios);
 
-        // Check if app is already installed
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+        // Don't show if already running as installed PWA
+        const isStandalone =
+            window.matchMedia('(display-mode: standalone)').matches ||
             (window.navigator as unknown as { standalone?: boolean }).standalone === true;
+        if (isStandalone) return;
 
-        if (isStandalone) {
-            return; // Don't show if already installed
+        if (ios) {
+            const t = setTimeout(() => {
+                setState('banner');
+                setTimeout(() => setVisible(true), 50);
+            }, 2500);
+            return () => clearTimeout(t);
         }
 
-        const handleBeforeInstallPrompt = (e: Event) => {
-            // Prevent the mini-infobar from appearing on mobile
+        // Check if the event was already captured by our inline global script (before React loaded)
+        const globalPrompt = (window as unknown as { __pwaInstallPrompt?: BeforeInstallPromptEvent }).__pwaInstallPrompt;
+        if (globalPrompt) {
+            setDeferredPrompt(globalPrompt);
+            setState('banner');
+            setTimeout(() => setVisible(true), 50);
+        }
+
+        // Also listen for any future events
+        const handler = (e: Event) => {
             e.preventDefault();
-            // Stash the event so it can be triggered later.
             setDeferredPrompt(e as BeforeInstallPromptEvent);
-            // Update UI notify the user they can install the PWA
-            setShowPrompt(true);
+            setState('banner');
+            setTimeout(() => setVisible(true), 50);
         };
-
-        window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-
-        // If it's iOS and not standalone, show custom iOS prompt after a short delay
-        if (isIOSDevice && !isStandalone) {
-            const timer = setTimeout(() => {
-                setShowPrompt(true);
-            }, 3000);
-            return () => clearTimeout(timer);
-        }
-
-        return () => {
-            window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-        };
+        window.addEventListener('beforeinstallprompt', handler);
+        return () => window.removeEventListener('beforeinstallprompt', handler);
     }, []);
 
-    const handleInstallClick = async () => {
+
+    const dismiss = useCallback(() => {
+        setVisible(false);
+        setTimeout(() => setState('hidden'), 300);
+    }, []);
+
+    const handleInstall = useCallback(async () => {
         if (isIOS) {
-            setShowIOSInstructions(true);
+            setState('ios-instructions');
             return;
         }
-
-        if (!deferredPrompt) {
-            return;
-        }
-
-        // Show the install prompt
+        if (!deferredPrompt) return;
         deferredPrompt.prompt();
-
-        // Wait for the user to respond to the prompt
         const { outcome } = await deferredPrompt.userChoice;
-
-        if (outcome === 'accepted') {
-            setShowPrompt(false);
-        }
-
-        // We've used the prompt, and can't use it again, throw it away
+        if (outcome === 'accepted') dismiss();
         setDeferredPrompt(null);
-    };
+    }, [isIOS, deferredPrompt, dismiss]);
 
-    if (!showPrompt) return null;
-
-    if (showIOSInstructions) {
-        return (
-            <div className="fixed bottom-4 left-4 right-4 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 z-50 animate-in slide-in-from-bottom-5">
-                <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-semibold text-lg">Install Payattu Book</h3>
-                    <button onClick={() => setShowPrompt(false)} className="text-gray-500 hover:text-gray-700">
-                        <X size={20} />
-                    </button>
-                </div>
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-                    To install this app on your iPhone or iPad:
-                </p>
-                <ol className="list-decimal list-inside text-sm text-gray-600 dark:text-gray-300 space-y-2 mb-4">
-                    <li>Tap the <strong>Share</strong> button at the bottom of your browser.</li>
-                    <li>Scroll down and tap <strong>Add to Home Screen</strong> <span className="inline-block p-1 bg-gray-100 dark:bg-gray-700 rounded border border-gray-300 dark:border-gray-600">+</span></li>
-                </ol>
-                <button
-                    onClick={() => setShowIOSInstructions(false)}
-                    className="w-full py-2 bg-gray-100 dark:bg-gray-700 rounded-lg text-sm font-medium"
-                >
-                    Got it
-                </button>
-            </div>
-        );
-    }
+    if (state === 'hidden') return null;
 
     return (
-        <div className="fixed bottom-4 left-4 right-4 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 z-50 flex items-center justify-between animate-in slide-in-from-bottom-5">
-            <div className="flex flex-col mr-4">
-                <span className="font-medium">Install Payattu Book</span>
-                <span className="text-xs text-gray-500">Access offline and from your home screen</span>
+        <>
+            {/* Backdrop */}
+            <div
+                onClick={dismiss}
+                style={{
+                    position: 'fixed',
+                    inset: 0,
+                    background: 'rgba(0,0,0,0.4)',
+                    zIndex: 999,
+                    opacity: visible ? 1 : 0,
+                    transition: 'opacity 0.3s ease',
+                    backdropFilter: 'blur(2px)',
+                    WebkitBackdropFilter: 'blur(2px)',
+                }}
+            />
+
+            {/* Bottom Sheet */}
+            <div
+                style={{
+                    position: 'fixed',
+                    bottom: 0,
+                    left: '50%',
+                    transform: visible
+                        ? 'translateX(-50%) translateY(0)'
+                        : 'translateX(-50%) translateY(100%)',
+                    width: '100%',
+                    maxWidth: '420px',
+                    background: 'white',
+                    borderRadius: '20px 20px 0 0',
+                    boxShadow: '0 -8px 40px rgba(0,0,0,0.2)',
+                    zIndex: 1000,
+                    transition: 'transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)',
+                    overflow: 'hidden',
+                }}
+            >
+                {/* Drag handle */}
+                <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '12px' }}>
+                    <div style={{ width: 40, height: 4, borderRadius: 99, background: '#E5E7EB' }} />
+                </div>
+
+                {state === 'banner' && (
+                    <div style={{ padding: '20px 24px 32px' }}>
+                        {/* Header */}
+                        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                            <button
+                                onClick={dismiss}
+                                style={{ color: '#9CA3AF', padding: 4 }}
+                                aria-label="Dismiss"
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        {/* App identity */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
+                            {/* App Icon */}
+                            <div style={{
+                                width: 64,
+                                height: 64,
+                                borderRadius: 16,
+                                background: 'linear-gradient(135deg, #3B0764, #7C3AED)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                flexShrink: 0,
+                                boxShadow: '0 4px 16px rgba(91,33,182,0.35)',
+                            }}>
+                                <img
+                                    src="/icon-192x192.png"
+                                    alt="PayattuBook"
+                                    style={{ width: 48, height: 48, borderRadius: 12 }}
+                                    onError={(e) => {
+                                        (e.target as HTMLImageElement).style.display = 'none';
+                                    }}
+                                />
+                            </div>
+                            <div>
+                                <p style={{ fontWeight: 700, fontSize: '1.1rem', color: '#111827', lineHeight: 1.2 }}>
+                                    PayattuBook
+                                </p>
+                                <p style={{ fontSize: '0.8rem', color: '#6B7280', marginTop: 3 }}>
+                                    Add to your Home Screen
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Feature pills */}
+                        <div style={{ display: 'flex', gap: 8, marginBottom: 24, flexWrap: 'wrap' }}>
+                            {['Works Offline', 'Fast & Native', 'No App Store'].map(f => (
+                                <span key={f} style={{
+                                    fontSize: '0.7rem',
+                                    fontWeight: 600,
+                                    color: '#5B21B6',
+                                    background: '#EDE9FE',
+                                    borderRadius: 99,
+                                    padding: '4px 10px',
+                                }}>
+                                    ✦ {f}
+                                </span>
+                            ))}
+                        </div>
+
+                        {/* CTA */}
+                        <button
+                            onClick={handleInstall}
+                            style={{
+                                width: '100%',
+                                padding: '14px',
+                                background: 'linear-gradient(135deg, #3B0764, #7C3AED)',
+                                color: 'white',
+                                borderRadius: 14,
+                                fontWeight: 700,
+                                fontSize: '1rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: 8,
+                                boxShadow: '0 4px 20px rgba(91,33,182,0.4)',
+                                cursor: 'pointer',
+                                border: 'none',
+                                letterSpacing: '0.01em',
+                            }}
+                        >
+                            <ArrowDownToLine size={20} />
+                            {isIOS ? 'How to Install' : 'Install App'}
+                        </button>
+
+                        <p style={{ textAlign: 'center', fontSize: '0.72rem', color: '#9CA3AF', marginTop: 12 }}>
+                            Free · No storage needed · Instant
+                        </p>
+                    </div>
+                )}
+
+                {state === 'ios-instructions' && (
+                    <div style={{ padding: '20px 24px 36px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                            <p style={{ fontWeight: 700, fontSize: '1.05rem', color: '#111827' }}>
+                                Add to Home Screen
+                            </p>
+                            <button onClick={dismiss} style={{ color: '#9CA3AF' }} aria-label="Close">
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        {/* Steps */}
+                        {[
+                            { icon: <Share size={22} color="#5B21B6" />, label: 'Tap the Share button', sub: 'Bottom of your Safari browser' },
+                            { icon: <span style={{ fontSize: '1.3rem' }}>+</span>, label: 'Tap "Add to Home Screen"', sub: 'Scroll down in the share menu' },
+                            { icon: <span style={{ fontSize: '1.3rem' }}>✓</span>, label: 'Tap "Add" to confirm', sub: 'The app icon will appear instantly' },
+                        ].map((step, i) => (
+                            <div key={i} style={{ display: 'flex', gap: 16, marginBottom: 20, alignItems: 'flex-start' }}>
+                                <div style={{
+                                    width: 44, height: 44, borderRadius: 12,
+                                    background: '#F5F3FF',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    color: '#5B21B6', fontWeight: 700, fontSize: '1.1rem',
+                                    flexShrink: 0,
+                                }}>
+                                    {step.icon}
+                                </div>
+                                <div>
+                                    <p style={{ fontWeight: 600, fontSize: '0.9rem', color: '#111827' }}>{step.label}</p>
+                                    <p style={{ fontSize: '0.75rem', color: '#6B7280', marginTop: 2 }}>{step.sub}</p>
+                                </div>
+                            </div>
+                        ))}
+
+                        <button
+                            onClick={dismiss}
+                            style={{
+                                width: '100%',
+                                padding: '12px',
+                                background: '#F3F4F6',
+                                color: '#374151',
+                                borderRadius: 12,
+                                fontWeight: 600,
+                                fontSize: '0.9rem',
+                                border: 'none',
+                                cursor: 'pointer',
+                            }}
+                        >
+                            Got it!
+                        </button>
+                    </div>
+                )}
             </div>
-            <div className="flex items-center gap-2">
-                <button
-                    onClick={() => setShowPrompt(false)}
-                    className="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
-                >
-                    <X size={20} />
-                </button>
-                <button
-                    onClick={handleInstallClick}
-                    className="flex items-center gap-1 bg-purple-600 text-white px-4 py-2 rounded-lg font-medium text-sm shadow hover:bg-purple-700 transition"
-                >
-                    <Download size={16} />
-                    Install
-                </button>
-            </div>
-        </div>
+        </>
     );
 }
